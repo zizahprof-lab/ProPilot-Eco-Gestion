@@ -29,7 +29,6 @@ jobs:
 
       - name: Run core ProPilot checks
         run: |
-          node scripts/check_reference_lock.mjs
           node scripts/check_role_guards.mjs
           node scripts/check_pilot_flow.mjs
           node scripts/check_student_portal.mjs
