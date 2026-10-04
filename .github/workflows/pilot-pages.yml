@@ -42,18 +42,7 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Verify pilot configuration
-        env:
-          VITE_SUPABASE_URL: ${{ vars.PROPILOT_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.PROPILOT_SUPABASE_PUBLISHABLE_KEY }}
-        run: |
-          test -n "$VITE_SUPABASE_URL"
-          test -n "$VITE_SUPABASE_PUBLISHABLE_KEY"
-
       - name: Build pilot
-        env:
-          VITE_SUPABASE_URL: ${{ vars.PROPILOT_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.PROPILOT_SUPABASE_PUBLISHABLE_KEY }}
         run: npm run build -- --base=/ProPilot-Eco-Gestion/
 
       - name: Configure GitHub Pages
