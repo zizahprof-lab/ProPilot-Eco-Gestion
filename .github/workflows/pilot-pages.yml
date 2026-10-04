@@ -1,0 +1,78 @@
+name: Deploy ProPilot Pilot
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [v19-build-validation]
+    paths:
+      - "src/**"
+      - "ci/**"
+      - "public/**"
+      - "index.html"
+      - "package.json"
+      - "vite.config.js"
+      - ".github/workflows/pilot-pages.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: propilot-pilot-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout V22
+        uses: actions/checkout@v4
+
+      - name: Reconstruct V22 main source
+        run: |
+          cat ci/main.part1 ci/main.part2 ci/main.part3 ci/main.part4 > src/main.jsx
+          test -s src/main.jsx
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Verify pilot configuration
+        env:
+          VITE_SUPABASE_URL: ${{ vars.PROPILOT_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.PROPILOT_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          test -n "$VITE_SUPABASE_URL"
+          test -n "$VITE_SUPABASE_PUBLISHABLE_KEY"
+
+      - name: Build pilot
+        env:
+          VITE_SUPABASE_URL: ${{ vars.PROPILOT_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.PROPILOT_SUPABASE_PUBLISHABLE_KEY }}
+        run: npm run build -- --base=/ProPilot-Eco-Gestion/
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy pilot to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
