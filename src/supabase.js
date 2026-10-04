@@ -14,13 +14,7 @@ async function resolveConfig() {
     throw new Error('Configuration ProPilot indisponible.')
   }
 
-  const source = await response.text()
-  const match = source.match(/window\.__PROPILOT_CONFIG__=(\{.*\});?/)
-  if (!match) {
-    throw new Error('Configuration ProPilot invalide.')
-  }
-
-  const config = JSON.parse(match[1])
+  const config = await response.json()
   if (!config?.url || !config?.publishableKey) {
     throw new Error('Configuration Supabase manquante.')
   }
