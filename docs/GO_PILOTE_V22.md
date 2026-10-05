@@ -13,8 +13,12 @@
 - [x] Chemins PWA adaptés au sous-chemin GitHub Pages
 - [x] Redirections Auth adaptées au sous-chemin
 
+## État de publication
+- GitHub Pages activé.
+- Déploiement GitHub Pages en cours sur la branche `pilot-site`.
+
 ## À faire avant envoi aux 10 formateurs
-- [ ] Activer GitHub Pages sur la branche `pilot-site`, dossier `/ (root)`
+- [x] Activer GitHub Pages sur la branche `pilot-site`, dossier `/ (root)`
 - [ ] Vérifier l’URL pilote dans un navigateur
 - [ ] Créer le compte administrateur réel
 - [ ] Tester inscription → approbation → première classe avec un compte professeur réel
