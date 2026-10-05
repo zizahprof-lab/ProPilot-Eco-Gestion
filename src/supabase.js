@@ -1,26 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
-async function resolveConfig() {
-  const envUrl = import.meta.env.VITE_SUPABASE_URL
-  const envKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+const supabaseUrl =
+  import.meta.env.VITE_SUPABASE_URL ||
+  'https://amgqazotopxgfxgxtweo.supabase.co'
 
-  if (envUrl && envKey) {
-    return { url: envUrl, publishableKey: envKey }
-  }
+const supabaseKey =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  'sb_publishable_YDMLSvnySBgKHkuu5EzC_A_Oay-LLPX'
 
-  const configUrl = 'https://amgqazotopxgfxgxtweo.supabase.co/functions/v1/public-config'
-  const response = await fetch(configUrl, { cache: 'no-store' })
-  if (!response.ok) {
-    throw new Error('Configuration ProPilot indisponible.')
-  }
-
-  const config = await response.json()
-  if (!config?.url || !config?.publishableKey) {
-    throw new Error('Configuration Supabase manquante.')
-  }
-  return config
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('Configuration Supabase manquante.')
 }
 
-const { url, publishableKey } = await resolveConfig()
-
-export const supabase = createClient(url, publishableKey)
+export const supabase = createClient(supabaseUrl, supabaseKey)
