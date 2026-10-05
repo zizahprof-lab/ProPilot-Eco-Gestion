@@ -9,12 +9,12 @@ on:
 jobs:
   checks-and-build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Reconstruct V21 main source
+      - name: Reconstruct V22 main source
         run: |
           cat ci/main.part1 ci/main.part2 ci/main.part3 ci/main.part4 > src/main.jsx
           test -s src/main.jsx
