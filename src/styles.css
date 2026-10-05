@@ -237,3 +237,17 @@
 .compact-input{width:100%;min-width:190px;border:1px solid #d8deea;border-radius:9px;padding:8px 10px;font:inherit;background:#fff;color:#1d2433}
 .compact-input:focus{outline:2px solid rgba(47,111,237,.18);border-color:#2f6fed}
 .compact-input:disabled{background:#f6f7f9;color:#8a93a3}
+
+
+.pilot-signup-note{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:rgba(47,111,237,.08);
+  border:1px solid rgba(47,111,237,.18);
+  margin-bottom:4px;
+}
+.pilot-signup-note strong{font-size:.95rem}
+.pilot-signup-note span{font-size:.82rem;color:var(--muted,#64748b)}
