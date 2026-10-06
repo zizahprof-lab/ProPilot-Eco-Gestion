@@ -251,3 +251,13 @@
 }
 .pilot-signup-note strong{font-size:.95rem}
 .pilot-signup-note span{font-size:.82rem;color:var(--muted,#64748b)}
+
+
+/* V22 onboarding — visite guidée, sans modification de l'interface de référence */
+.tour-overlay{position:fixed;inset:0;z-index:1400;background:rgba(15,23,42,.48);display:flex;align-items:center;justify-content:center;padding:24px}
+.tour-card{width:min(560px,100%);background:#fff;border-radius:18px;box-shadow:0 24px 80px rgba(15,23,42,.28);padding:22px;display:grid;gap:14px}
+.tour-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.tour-progress{height:5px;border-radius:999px;background:#e8edf5;overflow:hidden}.tour-progress span{display:block;height:100%;background:#2f6fed;border-radius:inherit;transition:width .2s ease}
+.tour-card h2{margin:2px 0 0}.tour-card p{margin:0;color:#64748b;line-height:1.55}
+.tour-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:4px}
+@media(max-width:640px){.tour-overlay{padding:14px}.tour-card{padding:18px}.tour-actions{align-items:stretch;flex-direction:column}.tour-actions>.row{justify-content:flex-end;flex-wrap:wrap}}
