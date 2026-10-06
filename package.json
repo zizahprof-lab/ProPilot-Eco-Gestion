@@ -15,13 +15,15 @@
     "check:ccf-dossier": "node scripts/check_ccf_dossier.mjs",
     "check:personal": "node scripts/check_personal_functional_lock.mjs",
     "check:ccf-alerts": "node scripts/check_ccf_alerts.mjs",
-    "check:all": "npm run check:reference && npm run check:personal && npm run check:roles && npm run check:pilot && npm run check:student && npm run check:ccf-docs && npm run check:ccf-dossier && npm run check:ccf-alerts"
+    "check:all": "npm run check:reference && npm run check:personal && npm run check:roles && npm run check:pilot && npm run check:student && npm run check:ccf-docs && npm run check:ccf-dossier && npm run check:ccf-alerts && npm run check:onboarding",
+    "check:onboarding": "node scripts/check_onboarding_v22.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "xlsx": "0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
