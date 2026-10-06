@@ -26,3 +26,8 @@ for(const [label,ok] of checks){
 }
 if(failed){console.error(`\n${failed} contrôle(s) onboarding en échec.`);process.exit(1)}
 console.log(`\nOnboarding V22 : ${checks.length} contrôles OK.`)
+
+assert(setup.includes("import * as XLSX from 'xlsx'"),'Excel parser is wired into setup')
+assert(setup.includes('.xlsx,.xls,.csv'),'Setup accepts Excel and CSV files')
+assert(main.includes("import GuidedTour from './GuidedTour'"),'Guided tour is imported by the app')
+assert(main.includes('propilot-guided-tour-v22:'),'Guided tour completion is persisted per teacher')
