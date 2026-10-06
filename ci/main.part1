@@ -9,6 +9,7 @@ import {
   Eye, EyeOff, SlidersHorizontal, ListChecks, CalendarDays, Target, Sparkles, Archive, Copy, Maximize2, Minimize2
 } from 'lucide-react'
 import SetupWizard from './SetupWizard'
+import GuidedTour from './GuidedTour'
 import PersonalProgression from './PersonalProgression'
 import { detectCsvDelimiter, parseCsvText } from './csv'
 import './styles.css'
@@ -83,6 +84,7 @@ function App() {
   const [activeClass, setActiveClass] = useState(null)
   const [notice, setNotice] = useState('')
   const [pendingInvites, setPendingInvites] = useState([])
+  const [guidedTourOpen,setGuidedTourOpen]=useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -257,7 +259,7 @@ function App() {
             onAcceptInvite={acceptInvite}
             onDeclineInvite={declineInvite}
             onOpenClass={(c) => { setActiveClass(c); setPage('class') }}
-            onCreated={async()=>{await loadClasses(); await loadPendingInvites()}}
+            onCreated={async(classId)=>{await loadClasses(); await loadPendingInvites(); const key=`propilot-guided-tour-v22:${session.user.id}`; if(!localStorage.getItem(key))setGuidedTourOpen(true)}}
           />
         )}
         {page === 'class' && activeClass && (
@@ -274,6 +276,7 @@ function App() {
         {page === 'feedback' && <FeedbackPanel classes={classes} />}
         {page === 'admin' && profile.role === 'admin' && <AdminPanel />}
       </main>
+      <GuidedTour open={guidedTourOpen} onClose={()=>{localStorage.setItem(`propilot-guided-tour-v22:${session.user.id}`,'done');setGuidedTourOpen(false)}}/>
     </div>
   )
 }
@@ -469,7 +472,7 @@ function Dashboard({ classes, pendingInvites=[], onAcceptInvite, onDeclineInvite
         <div className="empty-state"><School size={52}/><h3>Aucune classe active</h3><p>Créez votre première classe ou consultez les archives.</p><button className="btn primary" onClick={()=>setOpen(true)}><Plus/>Créer ma première classe</button></div>
       ) : <div className="class-grid">{activeClasses.map(classCard)}</div>}
       {archivedClasses.length>0&&<div className="archive-section"><button className="btn ghost" onClick={()=>setShowArchived(v=>!v)}><Archive/>{showArchived?'Masquer':'Afficher'} les classes archivées ({archivedClasses.length})</button>{showArchived&&<div className="class-grid archived-grid">{archivedClasses.map(classCard)}</div>}</div>}
-      {open && <SetupWizard onClose={()=>setOpen(false)} onCreated={()=>{setOpen(false); onCreated()}} />}
+      {open && <SetupWizard onClose={()=>setOpen(false)} onCreated={(classId)=>{setOpen(false); onCreated?.(classId)}} />}
     </section>
   )
 }
