@@ -31,8 +31,8 @@ export default function SetupWizard({onClose,onCreated}){
       supabase.from('pp_class_setup_drafts').select('*').eq('owner_id',user.id).is('finalized_class_id',null).order('updated_at',{ascending:false}).limit(1).maybeSingle()
     ])
     setPacks(packsData||[])
-    if(existing){setDraft(existing);setStep(existing.step_no||1);return}
-    const {data:newDraft,error}=await supabase.from('pp_class_setup_drafts').insert({owner_id:user.id,organization_mode:'solo',collaborators:[],enabled_modules:DEFAULT_MODULES,pfmp_periods:[],step_no:1}).select().single()
+    if(existing){setDraft({...existing,school_year:existing.school_year||'2026-2027'});setStep(existing.step_no||1);return}
+    const {data:newDraft,error}=await supabase.from('pp_class_setup_drafts').insert({owner_id:user.id,organization_mode:'solo',collaborators:[],enabled_modules:DEFAULT_MODULES,pfmp_periods:[],school_year:'2026-2027',step_no:1}).select().single()
     if(error)setMessage(error.message);else setDraft(newDraft)
   }
 
@@ -149,7 +149,7 @@ export default function SetupWizard({onClose,onCreated}){
   async function next(){
     setMessage('')
     if(step===1)await patch({establishment_name:draft.establishment_name,establishment_city:draft.establishment_city,establishment_logo_path:draft.establishment_logo_path||null},2)
-    if(step===2)await patch({diploma_code:draft.diploma_code,school_year:draft.school_year,class_name:draft.class_name,level_label:draft.level_label,reference_ready:true},3)
+    if(step===2)await patch({diploma_code:draft.diploma_code,school_year:draft.school_year||'2026-2027',class_name:draft.class_name,level_label:draft.level_label,reference_ready:true},3)
     if(step===3)await patch({organization_mode:draft.organization_mode,collaborators:collaborators()},4)
     if(step===4)await patch({enabled_modules:draft.enabled_modules||DEFAULT_MODULES,pfmp_periods:pfmps()},5)
     if(step===5)setStep(6)
