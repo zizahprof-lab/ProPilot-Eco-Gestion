@@ -53,7 +53,7 @@ export default function SetupWizard({onClose,onCreated}){
     const {data,error}=await supabase.from('pp_class_setup_drafts').update(payload).eq('id',draft.id).select().single()
     if(error){setMessage('Enregistrement impossible : '+error.message);return null}
     if(!data){setMessage('La sauvegarde du brouillon n’a retourné aucune donnée.');return null}
-    setDraft(data); if(nextStep)setStep(nextStep); return data
+    setDraft(previous=>({...previous,...data,...values})); if(nextStep)setStep(nextStep); return data
   }
 
   async function uploadLogo(file){
