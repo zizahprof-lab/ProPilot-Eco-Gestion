@@ -3,7 +3,7 @@ name: Prepare ProPilot Pilot Site
 on:
   workflow_dispatch:
   push:
-    branches: [v19-build-validation]
+    branches: [v19-build-validation, v22-onboarding-pilot]
     paths:
       - "src/**"
       - "ci/**"
@@ -44,6 +44,7 @@ jobs:
         run: |
           node scripts/check_role_guards.mjs
           node scripts/check_pilot_flow.mjs
+          node scripts/check_onboarding_v22.mjs
           node scripts/check_student_portal.mjs
           node scripts/check_ccf_dossier.mjs
           node scripts/check_ccf_alerts.mjs
