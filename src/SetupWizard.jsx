@@ -43,10 +43,7 @@ export default function SetupWizard({onClose,onCreated}){
       supabase.from('pp_diploma_econ_law_links').select('*',{count:'exact',head:true}).eq('diploma_code',code)
     ])
     setReference({competencies:c.count||0,exams:e.data||[],econ:l.count||0})
-    if(draft && c.count>0 && (e.data||[]).length>0 && !draft.reference_ready){
-      const {data}=await supabase.from('pp_class_setup_drafts').update({reference_ready:true,updated_at:new Date().toISOString()}).eq('id',draft.id).select().single()
-      if(data)setDraft(data)
-    }
+    // Le chargement du référentiel ne doit jamais écraser les champs saisis par l'utilisateur.
   }
 
   async function patch(values,nextStep=null){
@@ -54,7 +51,8 @@ export default function SetupWizard({onClose,onCreated}){
     const payload={...values,updated_at:new Date().toISOString()}
     if(nextStep)payload.step_no=nextStep
     const {data,error}=await supabase.from('pp_class_setup_drafts').update(payload).eq('id',draft.id).select().single()
-    if(error){setMessage(error.message);return null}
+    if(error){setMessage('Enregistrement impossible : '+error.message);return null}
+    if(!data){setMessage('La sauvegarde du brouillon n’a retourné aucune donnée.');return null}
     setDraft(data); if(nextStep)setStep(nextStep); return data
   }
 
