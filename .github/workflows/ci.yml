@@ -2,7 +2,7 @@ name: ProPilot CI
 
 on:
   push:
-    branches: [main, v19-build-validation]
+    branches: [main, v19-build-validation, v22-onboarding-pilot]
   pull_request:
     branches: [main]
 
@@ -31,6 +31,7 @@ jobs:
         run: |
           node scripts/check_role_guards.mjs
           node scripts/check_pilot_flow.mjs
+          node scripts/check_onboarding_v22.mjs
           node scripts/check_student_portal.mjs
           node scripts/check_ccf_dossier.mjs
           node scripts/check_ccf_alerts.mjs
