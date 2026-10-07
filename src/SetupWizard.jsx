@@ -141,7 +141,7 @@ export default function SetupWizard({onClose,onCreated}){
   const canNext=useMemo(()=>{
     if(!draft)return false
     if(step===1)return !!draft.establishment_name?.trim() && !!draft.establishment_city?.trim()
-    if(step===2)return !!draft.diploma_code && !!draft.school_year?.trim() && !!draft.class_name?.trim() && !!draft.level_label?.trim() && reference.competencies>0 && reference.exams.length>0
+    if(step===2)return !!draft.diploma_code && !!(draft.school_year||'2026-2027').trim() && !!draft.class_name?.trim() && !!draft.level_label?.trim()
     if(step===3)return collaboratorValidation()===''
     return true
   },[draft,step,reference])
