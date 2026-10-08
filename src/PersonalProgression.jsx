@@ -302,6 +302,17 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-v14-secondary-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:start;margin-top:10px}
       .personal-v14-secondary-grid>.personal-v14-groups{min-width:0;width:auto;margin:0;padding:10px}
       .personal-v14-secondary-grid .personal-v14-levels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+      /* Alignement du bas des deux panneaux comme sur la maquette validée */
+      .personal-v14-secondary-grid{align-items:stretch}
+      .personal-v14-secondary-grid>.personal-v14-groups{display:flex;flex-direction:column;min-height:184px}
+      .personal-v14-secondary-grid .personal-v14-group-grid{flex:1;align-items:stretch}
+      .personal-v14-secondary-grid .personal-v14-group-grid>div{display:flex;flex-direction:column;min-width:0}
+      .personal-v14-secondary-grid .personal-group-detail-link{margin-top:auto;align-self:center}
+      .personal-v14-secondary-grid .personal-v14-levels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;flex:1;align-items:stretch}
+      .personal-v14-secondary-grid .personal-v14-levels span{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:0;padding:9px 5px}
+      .personal-v14-secondary-grid .personal-v14-levels span b{font-size:19px}
+      .personal-v14-secondary-grid .personal-v14-levels+small{margin-top:auto}
+      @media(max-width:1250px){.personal-v14-secondary-grid .personal-v14-levels{grid-template-columns:repeat(2,minmax(0,1fr))}}
       @media(max-width:950px){.personal-v14-secondary-grid{grid-template-columns:1fr}}
       @media(max-width:850px){.personal-v14-ring-grid{grid-template-columns:1fr}.personal-v14-ring-card{min-height:65px}.personal-analytics-levels{grid-template-columns:repeat(2,minmax(0,1fr))}}
       @media(max-width:700px){.personal-v14-ring-grid{grid-template-columns:1fr}}
