@@ -6,7 +6,7 @@ import {
   Clock3, ChevronRight, School, LayoutDashboard, Search, Save, UserCheck, Settings,
   BriefcaseBusiness, FileText, Upload, Download, Trash2, Pencil, X, ArrowLeft,
   BarChart3, CheckCircle2, AlertCircle, UserPlus, Printer, RotateCcw, FolderOpen,
-  Eye, EyeOff, SlidersHorizontal, ListChecks, CalendarDays, Target, Sparkles, Archive, Copy, Maximize2, Minimize2
+  Eye, EyeOff, BellRing, SlidersHorizontal, ListChecks, CalendarDays, Target, Sparkles, Archive, Copy, Maximize2, Minimize2
 } from 'lucide-react'
 import SetupWizard from './SetupWizard'
 import GuidedTour from './GuidedTour'
@@ -469,7 +469,7 @@ function Dashboard({ classes, pendingInvites=[], onAcceptInvite, onDeclineInvite
         <Stat icon={<BookOpenCheck/>} value="162" label="Compétences intégrées"/>
         <Stat icon={<ClipboardCheck/>} value="10" label="Épreuves configurées"/>
       </div>
-      {pendingInvites.length>0&&<div className="panel invite-inbox"><div className="panel-head"><div><h3>Invitations de collaboration</h3><p>Une classe partagée ne rejoint votre espace qu'après votre accord.</p></div><span className="badge info">{pendingInvites.length} en attente</span></div><div className="cards-list">{pendingInvites.map(i=><div className="invite-card" key={i.id}><div><strong>{i.class_name}</strong><span>{i.establishment_name||'Établissement'}{i.establishment_city?` · ${i.establishment_city}`:''} · {i.school_year}</span><small>Invité par {i.inviter_name||i.inviter_email||'un collègue'} · droit proposé : {{owner:'Co-propriétaire',editor:'Éditeur',viewer:'Lecture seule'}[i.member_role]||i.member_role}</small></div><div className="row wrap"><button className="btn ghost" onClick={()=>onDeclineInvite?.(i.id)}>Refuser</button><button className="btn primary" onClick={()=>onAcceptInvite?.(i.id)}>Accepter</button></div></div>)}</div></div>}
+      {pendingInvites.length>0&&<div className="panel invite-inbox"><div className="panel-head"><div><h3><BellRing size={23} aria-hidden="true"/> Invitations de collaboration</h3><p>Une classe partagée ne rejoint votre espace qu'après votre accord.</p></div><span className="badge info">{pendingInvites.length} en attente</span></div><div className="cards-list">{pendingInvites.map(i=><div className="invite-card" key={i.id}><div><strong>{i.class_name}</strong><span>{i.establishment_name||'Établissement'}{i.establishment_city?` · ${i.establishment_city}`:''} · {i.school_year}</span><small>Invité par {i.inviter_name||i.inviter_email||'un collègue'} · droit proposé : {{owner:'Co-propriétaire',editor:'Éditeur',viewer:'Lecture seule'}[i.member_role]||i.member_role}</small></div><div className="row wrap"><button className="btn ghost" onClick={()=>onDeclineInvite?.(i.id)}>Refuser</button><button className="btn primary" onClick={()=>onAcceptInvite?.(i.id)}>Accepter</button></div></div>)}</div></div>}
       {activeClasses.length === 0 ? (
         <div className="empty-state"><School size={52}/><h3>Aucune classe active</h3><p>Créez votre première classe ou consultez les archives.</p><button className="btn primary" onClick={()=>setOpen(true)}><Plus/>Créer ma première classe</button></div>
       ) : <div className="class-grid">{activeClasses.map(classCard)}</div>}
