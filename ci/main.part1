@@ -437,7 +437,7 @@ function EstablishmentIdentity({ establishment }) {
 }
 
 function InstitutionalIdentity({establishment}) {
-  return <div className="institutional-identity"><div className="academy-brand"><img src="https://www.pedagogie.ac-aix-marseille.fr/upload/docs/image/png/2020-12/amc_logo.png" alt="Académie d’Aix-Marseille" onError={e=>{e.currentTarget.style.display='none';if(e.currentTarget.nextElementSibling)e.currentTarget.nextElementSibling.style.display='block'}}/><span>Académie d’Aix-Marseille</span></div><div className="institutional-divider"/><EstablishmentIdentity establishment={establishment}/></div>
+  return <div className="institutional-identity"><div className="academy-brand"><img src="/ProPilot-Eco-Gestion/academie-aix-marseille.svg" alt="Académie d’Aix-Marseille" onError={e=>{e.currentTarget.style.display='none';if(e.currentTarget.nextElementSibling)e.currentTarget.nextElementSibling.style.display='block'}}/><span>Académie d’Aix-Marseille</span></div><div className="institutional-divider"/><EstablishmentIdentity establishment={establishment}/></div>
 }
 
 function Dashboard({ classes, pendingInvites=[], onAcceptInvite, onDeclineInvite, onOpenClass, onCreated }) {
