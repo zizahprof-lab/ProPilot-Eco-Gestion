@@ -148,11 +148,21 @@ export default function SetupWizard({onClose,onCreated}){
     setMessage('')
     if(step===1)await patch({establishment_name:draft.establishment_name,establishment_city:draft.establishment_city,establishment_logo_path:draft.establishment_logo_path||null},2)
     if(step===2){
-      if(!draft.diploma_code||!draft.class_name?.trim()||!draft.level_label?.trim()){setMessage('Champs manquants : '+[!draft.diploma_code?'diplôme':null,!draft.class_name?.trim()?'nom de classe':null,!draft.level_label?.trim()?'niveau':null].filter(Boolean).join(', '));return}
-      setBusy(true);setMessage('Enregistrement de la classe en cours…')
-      try {await patch({diploma_code:draft.diploma_code,school_year:draft.school_year||'2026-2027',class_name:draft.class_name.trim(),level_label:draft.level_label,reference_ready:reference.competencies>0&&reference.exams.length>0},3)}
-      catch(error){setMessage('Erreur lors du passage à l’étape 3 : '+String(error?.message||error))}
-      finally {setBusy(false)}
+      if(!draft.diploma_code||!draft.class_name?.trim()||!draft.level_label?.trim()){
+        setMessage('Champs manquants : '+[!draft.diploma_code?'diplôme':null,!draft.class_name?.trim()?'nom de classe':null,!draft.level_label?.trim()?'niveau':null].filter(Boolean).join(', '));return
+      }
+      // La navigation ne dépend pas de la latence réseau : sauvegarde en arrière-plan,
+      // mais erreur visible et retour à l'étape 2 en cas d'échec.
+      setStep(3)
+      setBusy(true)
+      try {
+        const saved=await patch({diploma_code:draft.diploma_code,school_year:draft.school_year||'2026-2027',class_name:draft.class_name.trim(),level_label:draft.level_label,reference_ready:reference.competencies>0&&reference.exams.length>0},3)
+        if(!saved)setStep(2)
+      } catch(error) {
+        setMessage('Erreur lors de la sauvegarde : '+String(error?.message||error))
+        setStep(2)
+      } finally {setBusy(false)}
+      return
     }
     if(step===3)await patch({organization_mode:draft.organization_mode,collaborators:collaborators()},4)
     if(step===4)await patch({enabled_modules:draft.enabled_modules||DEFAULT_MODULES,pfmp_periods:pfmps()},5)
