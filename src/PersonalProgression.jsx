@@ -354,26 +354,35 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
         return {group_code:ref.group_code,competence:ref.code,competence_label:ref.label,behaviours:flatten('behaviours'),knowledge:flatten('knowledge'),expected_results:flatten('expected_results')}
       }).filter(Boolean)
       const economySelections=(analysis.economy_law_selections||[]).length?analysis.economy_law_selections:(analysis.econ_law_links||[]).map(code=>{const match=econ.find(x=>x.code===code);return match?{module_code:match.code,question:match.question_label}:null}).filter(Boolean)
-      setAiSuggestion({...analysis,selections:matched,economy_law_selections:economySelections});setAiChecks({});setMessage(matched.length||economySelections.length?'Propositions reçues : décochez les éléments non pertinents avant de les appliquer.':'Analyse terminée, mais aucune compétence du référentiel n’a été reconnue. Vérifiez le document et les références.')
+      setAiSuggestion({...analysis,selections:matched,economy_law_selections:economySelections});setAiChecks({});
+      // Prefill editable fields immediately, without waiting for teacher validation.
+      const proposedCodes=matched.map(v=>v.competence).filter(code=>competencies.some(c=>c.code===code));
+      const proposedLines=key=>unique(matched.flatMap(v=>Array.isArray(v[key])?v[key]:[])).join('\n');
+      const proposedActivities=analysis.suggested_activities||analysis.activities;
+      setF(prev=>({...prev,
+        context_name:analysis.suggested_context_name||analysis.context_name||prev.context_name,
+        problematic:analysis.suggested_problematic||analysis.problematic||prev.problematic,
+        activities:Array.isArray(proposedActivities)?proposedActivities.join('\n'):(proposedActivities||prev.activities),
+        competencyCodes:unique([...prev.competencyCodes,...proposedCodes]),
+        behavioursText:proposedLines('behaviours')||prev.behavioursText,
+        knowledgeText:proposedLines('knowledge')||prev.knowledgeText,
+        expectedText:proposedLines('expected_results')||prev.expectedText,
+        learning_level:['D','E','A','M'].includes(analysis.suggested_level)?analysis.suggested_level:prev.learning_level
+      }));setMessage(matched.length||economySelections.length?'Propositions reçues : décochez les éléments non pertinents avant de les appliquer.':'Analyse terminée, mais aucune compétence du référentiel n’a été reconnue. Vérifiez le document et les références.')
     }catch(e){setAiStage('Analyse interrompue');setMessage('Analyse IA indisponible : '+err(e))}finally{setAnalyzing(false)}
   }
   function aiChecked(key){return aiChecks[key]!==false}
   function aiToggle(key){setAiChecks(p=>({...p,[key]:!aiChecked(key)}))}
   function aiSelections(){return (aiSuggestion?.selections||[]).filter((v,i)=>aiChecked('s'+i))}
   function applyAiSuggestion(){
-    const a=aiSuggestion;if(!a)return
-    const selected=(a.selections||[]).map((v,i)=>({v,i})).filter(({i})=>aiChecked('s'+i))
-    const normalize=v=>String(v||'').trim().toLocaleLowerCase('fr')
-    const codes=selected.map(({v})=>competencies.find(c=>normalize(c.code)===normalize(v.competence)||normalize(c.label)===normalize(v.competence)||normalize(c.code)===normalize(v.competence_code))?.code).filter(Boolean)
-    const fallback=selected.length===0&&!(a.selections||[]).length?(Array.isArray(a.competencies)?a.competencies:[]).map(x=>typeof x==='string'?x:x.code||x.competence_code).filter(x=>competencies.some(c=>c.code===x)):[]
-    const values=(kind)=>selected.flatMap(({v,i})=>(v[kind]||[]).filter((x,j)=>aiChecked(i+':'+kind+':'+j)))
-    const arr=x=>Array.isArray(x)?x.join('\\n'):typeof x==='string'?x:''
-    const econCodes=(a.economy_law_selections||[]).map((v,i)=>aiChecked('ed'+i)?econ.find(x=>x.code===v.module_code||normalize(x.question_label)===normalize(v.question))?.code:null).filter(Boolean)
-    const hasSelection=selected.length>0
-    setF(prev=>({...prev,context_name:a.suggested_context_name||a.context_name||prev.context_name,problematic:a.suggested_problematic||a.problematic||prev.problematic,activities:arr(a.suggested_activities||a.activities)||prev.activities,competencyCodes:codes.length?unique([...prev.competencyCodes,...codes]):fallback.length?unique([...prev.competencyCodes,...fallback]):prev.competencyCodes,behavioursText:hasSelection?unique([...lines(prev.behavioursText),...values('behaviours')]).join('\\n'):arr(a.behaviours||a.professional_behaviours)||prev.behavioursText,knowledgeText:hasSelection?unique([...lines(prev.knowledgeText),...values('knowledge')]).join('\\n'):arr(a.knowledge||a.associated_knowledge||a.savoirs_associes)||prev.knowledgeText,expectedText:hasSelection?unique([...lines(prev.expectedText),...values('expected_results')]).join('\\n'):arr(a.expected_results)||prev.expectedText,econ_law_links:unique([...prev.econ_law_links,...econCodes,...(!(a.economy_law_selections||[]).length&&Array.isArray(a.econ_law_links)?a.econ_law_links.filter(x=>econ.some(y=>y.code===x)):[])]),learning_level:['D','E','A','M'].includes(a.suggested_level)?a.suggested_level:prev.learning_level}))
-    setAiSuggestion(null);setMessage('Propositions sélectionnées appliquées. Vérifiez les champs avant d’enregistrer.');document.getElementById('propilot-identification')?.scrollIntoView({behavior:'smooth',block:'start'})
+    // Teacher validation must not overwrite edits made after automatic prefill.
+    const selectedCodes=(aiSuggestion?.selections||[]).filter((v,i)=>aiChecked('s'+i)).map(v=>v.competence);
+    const rejectedCodes=(aiSuggestion?.selections||[]).filter((v,i)=>!aiChecked('s'+i)).map(v=>v.competence);
+    setF(prev=>({...prev,competencyCodes:unique([...prev.competencyCodes.filter(code=>!rejectedCodes.includes(code)),...selectedCodes])}));
+    setAiSuggestion(null);
+    setMessage('Sélection validée. Vos modifications manuelles sont conservées ; vous pouvez encore corriger avant d’enregistrer.');
   }
-  async function submit(e){
+    async function submit(e){
     e.preventDefault();setBusy(true);setMessage('')
     try{
       const {data:{user}}=await supabase.auth.getUser();const beh=lines(f.behavioursText),know=lines(f.knowledgeText),res=lines(f.expectedText)
