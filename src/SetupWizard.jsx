@@ -73,7 +73,7 @@ export default function SetupWizard({onClose,onCreated}){
   function collaboratorValidation(){
     const rows=collaborators().filter(x=>normalizeEmail(x.email)).map(x=>({...x,email:normalizeEmail(x.email)}))
     const emails=rows.map(x=>x.email)
-    if(rows.some(x=>!x.email.endsWith('@ac-aix-marseille.fr')))return 'Pendant le pilote, les collègues doivent utiliser une adresse @ac-aix-marseille.fr.'
+    if(rows.some(x=>!x.email.endsWith('@ac-aix-marseille.fr') && !['prof.zizah@gmail.com','zizah.prof@gmail.com'].includes(x.email)))return 'Pendant le pilote, les collègues doivent utiliser une adresse @ac-aix-marseille.fr (sauf comptes de test autorisés).'
     if(currentEmail&&emails.includes(currentEmail))return 'Votre propre adresse ne doit pas être ajoutée comme collègue.'
     if(new Set(emails).size!==emails.length)return 'Un même collègue ne peut pas être ajouté plusieurs fois.'
     const expected=expectedCollaborators()
