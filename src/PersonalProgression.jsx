@@ -171,6 +171,8 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
   const [files,setFiles]=useState([])
   const [existingFiles,setExistingFiles]=useState([])
   const [busy,setBusy]=useState(false)
+  const [analyzing,setAnalyzing]=useState(false)
+  const [aiSuggestion,setAiSuggestion]=useState(null)
   const [message,setMessage]=useState('')
   const initialCodes=competencyCodes(initial?.competencies)
   const [f,setF]=useState({
@@ -200,6 +202,35 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
   function toggleEcon(code){setF({...f,econ_law_links:f.econ_law_links.includes(code)?f.econ_law_links.filter(x=>x!==code):[...f.econ_law_links,code]})}
   async function removeFile(a){if(!confirm(`Supprimer ${a.file_name} ?`))return;await supabase.storage.from('pp-progression-files').remove([a.storage_path]);await supabase.from('pp_progression_attachments').delete().eq('id',a.id);loadFiles()}
   async function uploadPending(itemId,userId){for(const file of files){const path=`${userId}/${itemId}/${Date.now()}-${safeName(file.name)}`;const {error}=await supabase.storage.from('pp-progression-files').upload(path,file);if(error)throw error;const {error:dbError}=await supabase.from('pp_progression_attachments').insert({progression_item_id:itemId,file_name:file.name,storage_path:path,mime_type:file.type||null,file_size:file.size,uploaded_by:userId});if(dbError)throw dbError}}
+  async function analyzeDocument(){
+    const file=files[0]
+    if(!file){setMessage('Ajoutez un document dans la section Pièces jointes avant de lancer l’analyse.');return}
+    setAnalyzing(true);setMessage('Analyse du document en cours…');setAiSuggestion(null)
+    try{
+      const {data:{user},error:authError}=await supabase.auth.getUser();if(authError||!user)throw new Error('Connectez-vous pour analyser un document.')
+      const path=`${user.id}/ai-review/${Date.now()}-${safeName(file.name)}`
+      const {error:uploadError}=await supabase.storage.from('pp-progression-files').upload(path,file)
+      if(uploadError)throw uploadError
+      try{
+        const {data:signed,error:signError}=await supabase.storage.from('pp-progression-files').createSignedUrl(path,300)
+        if(signError)throw signError
+        const referential=competencies.map(c=>({code:c.code,label:c.label,group:c.group_code,resources:resources.filter(r=>r.competency_code===c.code).map(r=>({behaviours:r.behaviours,knowledge:r.knowledge,expected_results:r.expected_results}))}))
+        const {data,error}=await supabase.functions.invoke('analyze-progression-document',{body:{file_url:signed.signedUrl,file_name:file.name,context_name:f.context_name,problematic:f.problematic,referential,economy_law_referential:econ.map(x=>({code:x.code,label:x.question_label}))}})
+        if(error)throw error
+        if(data?.error)throw new Error(data.message||data.error)
+        if(!data?.analysis)throw new Error('Aucune proposition reçue.')
+        setAiSuggestion(data.analysis);setMessage('Propositions reçues. Vérifiez-les avant de les appliquer.')
+      }finally{await supabase.storage.from('pp-progression-files').remove([path])}
+    }catch(e){setMessage('Analyse IA indisponible : '+err(e))}finally{setAnalyzing(false)}
+  }
+  function applyAiSuggestion(){
+    const a=aiSuggestion;if(!a)return
+    const proposals=Array.isArray(a.competencies)?a.competencies:[]
+    const codes=proposals.map(x=>typeof x==='string'?x:x.code||x.competence_code).filter(x=>competencies.some(c=>c.code===x))
+    const arr=x=>Array.isArray(x)?x.join('\\n'):typeof x==='string'?x:''
+    setF(prev=>({...prev,context_name:a.context_name||prev.context_name,problematic:a.problematic||prev.problematic,activities:arr(a.activities)||prev.activities,competencyCodes:codes.length?codes:prev.competencyCodes,behavioursText:arr(a.behaviours||a.professional_behaviours)||prev.behavioursText,knowledgeText:arr(a.knowledge||a.associated_knowledge)||prev.knowledgeText,expectedText:arr(a.expected_results)||prev.expectedText,econ_law_links:Array.isArray(a.econ_law_links)?a.econ_law_links.filter(x=>econ.some(y=>y.code===x)):prev.econ_law_links}))
+    setAiSuggestion(null);setMessage('Propositions appliquées au formulaire : vérifiez-les avant d’enregistrer.')
+  }
   async function submit(e){
     e.preventDefault();setBusy(true);setMessage('')
     try{
@@ -225,6 +256,7 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
     <div className="editor-section"><div className="editor-section-title"><h4>3. Éléments pédagogiques</h4><button type="button" className="btn small" onClick={refillFromReferential} disabled={!f.competencyCodes.length}><RefreshCw/>Préremplir depuis le référentiel</button></div><div className="form-grid"><label>Comportements professionnels <small>1 par ligne</small><textarea rows="6" value={f.behavioursText} onChange={e=>setF({...f,behavioursText:e.target.value})}/></label><label>Savoirs mobilisés <small>1 par ligne</small><textarea rows="6" value={f.knowledgeText} onChange={e=>setF({...f,knowledgeText:e.target.value})}/></label><label className="full">Résultats attendus <small>1 par ligne</small><textarea rows="5" value={f.expectedText} onChange={e=>setF({...f,expectedText:e.target.value})}/></label><label className="full">Activités prévues<textarea rows="7" value={f.activities} onChange={e=>setF({...f,activities:e.target.value})} placeholder="- Activité 1\n- Activité 2…"/></label><label className="full">Notes enseignant<textarea rows="3" value={f.notes} onChange={e=>setF({...f,notes:e.target.value})}/></label></div></div>
     <div className="editor-section"><h4>4. Transversalités économie-droit</h4><div className="econ-choice-grid">{econ.map(x=><button type="button" key={x.code} className={f.econ_law_links.includes(x.code)?'econ-choice selected':'econ-choice'} onClick={()=>toggleEcon(x.code)}><b>{x.code}</b><span>{x.question_label}</span></button>)}{!econ.length&&<div className="small-empty">Aucun lien économie-droit configuré pour ce diplôme.</div>}</div></div>
     <div className="editor-section"><h4>5. Pièces jointes</h4>{existingFiles.length>0&&<div className="attachment-list">{existingFiles.map(a=><div key={a.id}><FileText/><span>{a.file_name}</span><button type="button" className="icon-btn danger-text" onClick={()=>removeFile(a)}><Trash2/></button></div>)}</div>}<label className="file-drop"><Upload/><span>Ajouter des fichiers au contexte</span><input type="file" multiple onChange={e=>setFiles([...e.target.files])}/><small>{files.length?`${files.length} nouveau(x) fichier(s) sélectionné(s)`:'PDF, Word, Excel, PowerPoint, images…'}</small></label></div>
+    <div className="editor-section"><h4>6. Analyse IA du document</h4><p className="muted">Ajoutez d’abord un fichier dans « Pièces jointes », puis lancez l’analyse. Les propositions restent à vérifier et ne sont jamais enregistrées automatiquement.</p><button type="button" className="btn primary" onClick={analyzeDocument} disabled={analyzing||busy||!files.length}>{analyzing?'Analyse en cours…':'✨ Analyser le document avec l’IA'}</button>{aiSuggestion&&<div className="ai-proposal"><h4>Propositions à valider</h4><pre style={{whiteSpace:'pre-wrap',maxHeight:260,overflow:'auto'}}>{JSON.stringify(aiSuggestion,null,2)}</pre><button type="button" className="btn primary" onClick={applyAiSuggestion}>Appliquer les propositions au formulaire</button></div>}</div>
     {message&&<div className="form-message">{message}</div>}<div className="modal-actions"><button type="button" className="btn ghost" onClick={onClose}>Annuler</button><button className="btn primary" disabled={busy}><Save/>{busy?'Enregistrement…':'Enregistrer'}</button></div>
   </form></div></div>
 }
