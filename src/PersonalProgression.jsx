@@ -240,6 +240,30 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-analytics-levels>div:nth-child(4){background:#c6f7db;color:#087f43;border-color:#84e3b0}
       .personal-analytics-levels b{font-size:22px}
       .personal-analytics-levels span{font-size:12px;font-weight:700}
+      /* Cartes pleines et contrastées, style compact demandé */
+      .personal-v14-ring-card{min-height:72px;padding:10px 14px;background:#1769e8!important;border-color:#1769e8!important;color:#fff;box-shadow:none}
+      .personal-v14-ring-card:nth-child(2){background:#ffad0d!important;border-color:#ffad0d!important;color:#17243c}
+      .personal-v14-ring-card:nth-child(3){background:#08ae7b!important;border-color:#08ae7b!important;color:#fff}
+      .personal-v14-ring-card>strong{color:inherit;font-size:13px;max-width:175px}
+      .personal-v14-ring{width:61px;height:61px;flex-basis:61px;background:conic-gradient(#fff var(--progress,0%),#ffffff55 0)!important}
+      .personal-v14-ring>div{width:45px;height:45px;background:#fff}
+      .personal-v14-ring b{font-size:11px;color:#17345a}
+      .personal-v14-ring span{font-size:10px;color:#17345a}
+      .personal-v14-group-grid>div{background:#236bf0!important;color:#fff;padding:9px 11px}
+      .personal-v14-group-grid>div:nth-child(2){background:#ff9b20!important;color:#17243c}
+      .personal-v14-group-grid>div:nth-child(3){background:#873deb!important;color:#fff}
+      .personal-v14-group-grid>div:nth-child(4){background:#10a96a!important;color:#fff}
+      .personal-v14-group-grid small{color:inherit}
+      .personal-v14-group-grid .personal-group-detail-link{color:inherit;text-decoration:underline;font-weight:700}
+      .personal-v14-meter{background:#ffffff70}
+      .personal-v14-meter i{background:#fff!important}
+      .personal-v14-group-grid>div:nth-child(2) .personal-v14-meter{background:#17243c35}
+      .personal-v14-group-grid>div:nth-child(2) .personal-v14-meter i{background:#17243c!important}
+      .personal-analytics-levels>div{padding:9px 7px;min-height:54px;border:0}
+      .personal-analytics-levels>div:nth-child(1){background:#2875eb;color:#fff}
+      .personal-analytics-levels>div:nth-child(2){background:#ffca32;color:#202634}
+      .personal-analytics-levels>div:nth-child(3){background:#8446e8;color:#fff}
+      .personal-analytics-levels>div:nth-child(4){background:#12b878;color:#fff}
       @media(max-width:850px){.personal-v14-ring-grid{grid-template-columns:1fr}.personal-v14-ring-card{min-height:65px}.personal-analytics-levels{grid-template-columns:repeat(2,minmax(0,1fr))}}
       @media(max-width:700px){.personal-v14-ring-grid{grid-template-columns:1fr}}
     `}</style>
