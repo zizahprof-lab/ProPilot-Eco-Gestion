@@ -241,6 +241,7 @@ function ProgressionCard({item,files,readOnly,onEdit,onDelete,onDuplicate,onDown
   </article>
 }
 
+function editorLines(value){return (Array.isArray(value)?value:[value]).flatMap(x=>String(x??'').replace(/\\n/g,'\n').split('\n')).map(x=>x.trim()).filter(Boolean)}
 function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose,onSaved}){
   const [competencies,setCompetencies]=useState([])
   const [resources,setResources]=useState([])
@@ -260,7 +261,7 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
     item_kind:initial?.item_kind||'context', activity_type:initial?.activity_type||'', custom_activity_type:initial?.custom_activity_type||'',
     period_id:initial?.period_id||periods?.[0]?.code||'P1', context_name:initial?.context_name||'', problematic:initial?.problematic||'', teacher_label:initial?.teacher_label||teacherOptions[0]||'',
     learning_level:initial?.learning_level||'D', status:initial?.status||'Prévu', duration_hours:Number(initial?.duration_hours??initial?.planned_hours??2), cycle_level:initial?.cycle_level||levelToCycle(klass.level_label),
-    behavioursText:(initial?.behaviours||[]).join('\n'), knowledgeText:(initial?.knowledge||[]).join('\n'), expectedText:(initial?.expected_results||[]).join('\n'), activities:initial?.activities||'', notes:initial?.notes||'',
+    behavioursText:editorLines(initial?.behaviours||[]).join('\n'), knowledgeText:editorLines(initial?.knowledge||[]).join('\n'), expectedText:editorLines(initial?.expected_results||[]).join('\n'), activities:initial?.activities||'', notes:initial?.notes||'',
     competencyCodes:initialCodes, econ_law_links:normalizeEcon(initial?.econ_law_links||[])
   })
 
@@ -352,7 +353,25 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
     }catch(e){setMessage(err(e))}finally{setBusy(false)}
   }
 
-  return <div className="modal-backdrop" onMouseDown={onClose}><div className="modal progression-editor-modal" onMouseDown={e=>e.stopPropagation()}><div className="modal-head"><div><span className="eyebrow">Progression personnelle</span><h3>{isEditing?'Modifier':'Ajouter'} un contexte / évènement</h3></div><button onClick={onClose}><X/></button></div><form onSubmit={submit} className="progression-editor-form">
+  return <div className="modal-backdrop" onMouseDown={onClose}><div className="modal progression-editor-modal" onMouseDown={e=>e.stopPropagation()}><style>{`
+.progression-editor-modal{width:min(1160px,96vw);max-height:94vh}
+.progression-editor-modal .editor-section{padding:24px 26px;margin:18px 0;border:1px solid #d9e3f1;border-radius:18px;background:#fff}
+.progression-editor-modal .editor-section>h4,.progression-editor-modal .editor-section-title h4{font-size:19px;margin:0 0 16px;color:#10223d}
+.progression-editor-modal .editor-section-title{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:18px}
+.progression-editor-modal .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.progression-editor-modal .form-grid>label{display:flex;flex-direction:column;gap:9px;min-width:0;line-height:1.45}
+.progression-editor-modal .form-grid>label.full{grid-column:1/-1}
+.progression-editor-modal .form-grid textarea{box-sizing:border-box;width:100%;min-height:140px;padding:14px 16px;border:1px solid #cbd8e8;border-radius:12px;font-size:14px;font-weight:400;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;resize:vertical}
+.progression-editor-modal .form-grid label small{font-weight:400;color:#64748b}
+.progression-editor-modal .ai-proposal{margin-top:22px;padding:22px;border:1px solid #b9d3f8;border-radius:16px;background:#f8fbff}
+.progression-editor-modal .ai-proposal>h4{font-size:20px;margin-bottom:14px}
+.progression-editor-modal .ai-review-card{background:#fff;border:1px solid #d9e3f1;border-radius:14px;padding:18px 20px;margin:14px 0;display:grid;gap:12px}
+.progression-editor-modal .ai-review-card>div{display:grid;gap:8px}
+.progression-editor-modal .ai-review-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;line-height:1.55;font-weight:400}
+.progression-editor-modal .ai-review-item:hover{background:#eff6ff}
+.progression-editor-modal .ai-review-item input{flex-shrink:0;margin-top:5px}
+@media(max-width:720px){.progression-editor-modal .form-grid{grid-template-columns:1fr}.progression-editor-modal .editor-section{padding:16px}}
+`}</style><div className="modal-head"><div><span className="eyebrow">Progression personnelle</span><h3>{isEditing?'Modifier':'Ajouter'} un contexte / évènement</h3></div><button onClick={onClose}><X/></button></div><form onSubmit={submit} className="progression-editor-form">
     <div className="editor-section"><h4>1. Identification</h4><div className="form-grid"><label>Type<select value={f.item_kind} onChange={e=>setF({...f,item_kind:e.target.value})}><option value="context">Contexte pédagogique</option><option value="event">Évènement / activité</option></select></label>{f.item_kind==='event'&&<label>Type d’activité<select value={f.activity_type} onChange={e=>setF({...f,activity_type:e.target.value})}><option value="">Choisir…</option><option>Oral post-PFMP</option><option>PFMP</option><option>Évaluation</option><option>Sortie pédagogique</option><option>Autre</option></select></label>}<label className="full">Nom du contexte / activité<input value={f.context_name} onChange={e=>setF({...f,context_name:e.target.value})} required/></label><label className="full">Problématique<textarea rows="2" value={f.problematic} onChange={e=>setF({...f,problematic:e.target.value})}/></label><label>Période<select value={f.period_id} onChange={e=>setF({...f,period_id:e.target.value})}>{periods.map(p=><option key={p.id} value={p.code}>{p.code} — {p.label}</option>)}</select></label><label>Enseignant(s)<input list="teacher-options" value={f.teacher_label} onChange={e=>setF({...f,teacher_label:e.target.value})} placeholder="M. … / Mme …"/><datalist id="teacher-options">{teacherOptions.map(n=><option value={n} key={n}/>)}</datalist></label><label>Niveau d’apprentissage<select value={f.learning_level} onChange={e=>setF({...f,learning_level:e.target.value})}>{LEARNING.map(([k,l])=><option key={k} value={k}>{k} — {l}</option>)}</select></label><label>Statut<select value={f.status} onChange={e=>setF({...f,status:e.target.value})}>{STATUS.map(s=><option key={s}>{s}</option>)}</select></label><label>Durée prévue (h)<input type="number" min="0" step="0.5" value={f.duration_hours} onChange={e=>setF({...f,duration_hours:e.target.value})}/></label><label>Niveau de classe<select value={f.cycle_level} onChange={e=>setF({...f,cycle_level:e.target.value})}><option value="seconde">Seconde</option><option value="premiere">Première</option><option value="terminale">Terminale</option></select></label></div></div>
     <div className="editor-section"><h4>2. Compétences du référentiel</h4><p className="muted">Le référentiel officiel de la classe est chargé automatiquement. Les comportements, savoirs et résultats attendus peuvent être préremplis comme dans votre version personnelle.</p><div className="competency-choice-grid">{competencies.map(c=><button type="button" key={c.code} className={f.competencyCodes.includes(c.code)?'competency-choice selected':'competency-choice'} onClick={()=>toggleCode(c.code)}><span style={{borderLeft:`4px solid ${GROUP_STYLE[c.group_code]?.color||'#94A3B8'}`}}>{GROUP_STYLE[c.group_code]?.personal||c.group_code}</span><b>{c.code}</b><small>{c.label}</small></button>)}</div></div>
     <div className="editor-section"><div className="editor-section-title"><h4>3. Éléments pédagogiques</h4><button type="button" className="btn small" onClick={refillFromReferential} disabled={!f.competencyCodes.length}><RefreshCw/>Préremplir depuis le référentiel</button></div><div className="form-grid"><label>Comportements professionnels <small>1 par ligne</small><textarea rows="6" value={f.behavioursText} onChange={e=>setF({...f,behavioursText:e.target.value})}/></label><label>Savoirs mobilisés <small>1 par ligne</small><textarea rows="6" value={f.knowledgeText} onChange={e=>setF({...f,knowledgeText:e.target.value})}/></label><label className="full">Résultats attendus <small>1 par ligne</small><textarea rows="5" value={f.expectedText} onChange={e=>setF({...f,expectedText:e.target.value})}/></label><label className="full">Activités prévues<textarea rows="7" value={f.activities} onChange={e=>setF({...f,activities:e.target.value})} placeholder="- Activité 1\n- Activité 2…"/></label><label className="full">Notes enseignant<textarea rows="3" value={f.notes} onChange={e=>setF({...f,notes:e.target.value})}/></label></div></div>
