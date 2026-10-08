@@ -117,6 +117,23 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       <div className="personal-kpi"><span>À ajuster</span><strong>{items.filter(i=>i.status==='À ajuster').length}</strong></div>
     </div>
 
+    <style>{`
+      .personal-v14-dashboard{margin:18px 0 22px;padding:18px;border:1px solid #dbe4ef;border-radius:16px;background:#f8faff}
+      .personal-v14-dashboard-title{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+      .personal-v14-dashboard-title strong{font-size:19px;color:#12233c}.personal-v14-dashboard-title span{color:#64748b}
+      .personal-v14-ring-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+      .personal-v14-ring-card{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:14px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+      .personal-v14-ring-card>strong{font-size:14px;color:#334155}
+      .personal-v14-ring{height:114px;width:114px;border-radius:50%;display:grid;place-items:center}
+      .personal-v14-ring>div{background:white;width:83px;height:83px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+      .personal-v14-ring b{font-size:16px}.personal-v14-ring span{font-size:13px;color:#64748b}
+      .personal-v14-groups{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-top:14px}
+      .personal-v14-group-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:14px;margin-top:12px}
+      .personal-v14-group-grid>div{display:grid;gap:6px;font-size:13px}
+      .personal-v14-meter{height:9px;border-radius:20px;background:#e8edf5;overflow:hidden}.personal-v14-meter i{display:block;height:100%;border-radius:20px}
+      .personal-v14-levels{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.personal-v14-levels span{padding:9px 12px;border-radius:10px;background:#f1f5f9;font-size:13px}
+      @media(max-width:700px){.personal-v14-ring-grid{grid-template-columns:1fr}}
+    `}</style>
     <section className="personal-v14-dashboard" aria-label="Tableau de bord de progression V14.1">
       <div className="personal-v14-dashboard-title"><strong>Tableau de bord pédagogique</strong><span>Programmation et couverture des compétences</span></div>
       <div className="personal-v14-ring-grid">
