@@ -180,10 +180,10 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       /* Reprise des proportions et couleurs de la progression personnelle V14.1 */
       .personal-timeline{align-items:stretch;gap:8px}
       .personal-period-column{height:66vh;min-height:510px;max-height:700px;display:flex;flex-direction:column;overflow:hidden;background:#f8fafc}
-      .personal-period-head{flex:0 0 auto;min-height:94px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:9px 9px 8px}
+      .personal-period-head{flex:0 0 auto;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px 8px 8px;gap:2px}
       .personal-period-head>div{text-align:center;width:100%}
       .personal-period-head h4{font-weight:900;letter-spacing:.01em}
-      .personal-period-add{display:grid;place-items:center;position:relative;margin:5px auto 0;width:30px;height:30px;min-width:30px;min-height:30px;border-radius:50%;background:#fff;color:#1d4ed8;border:1px solid #dbe4ef;box-shadow:0 3px 10px #0f172a20}
+      .personal-period-add{display:grid;place-items:center;position:relative;margin:6px auto 0;width:34px;height:34px;min-width:34px;min-height:34px;border-radius:50%;background:#fff;color:var(--period-accent,#2563eb);border:0;box-shadow:0 2px 8px #0f172a1c;cursor:pointer}.personal-period-add:hover{transform:scale(1.08);box-shadow:0 3px 12px #0f172a30}.personal-period-theme-p1,.personal-period-theme-p5{--period-accent:#2f80ed}.personal-period-theme-p2,.personal-period-theme-p6{--period-accent:#18a96b}.personal-period-theme-p3,.personal-period-theme-p7{--period-accent:#ef4444}.personal-period-theme-p4{--period-accent:#7c3aed}
       .personal-period-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:#64748b #e2e8f0;scrollbar-width:thin}
       .personal-period-theme-p1 .personal-period-head,.personal-period-theme-p5 .personal-period-head{background:linear-gradient(135deg,#2f80ed,#56a8ff);color:#fff}
       .personal-period-theme-p2 .personal-period-head,.personal-period-theme-p6 .personal-period-head{background:linear-gradient(135deg,#18a96b,#58cf8b);color:#fff}
@@ -392,7 +392,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
 
 function PeriodColumn({col,items,files,readOnly,onAdd,onEdit,onDelete,onDuplicate,onDownload,onMove,onEvaluate}){
   return <section className={`personal-period-column personal-period-theme-${col.code.toLowerCase()}`}>
-    <div className="personal-period-head"><div><h4>{col.label}</h4><small>{col.subtitle}</small><span>{col.code}</span></div>{!readOnly&&<button type="button" className="personal-period-add" onClick={onAdd} title={`Ajouter un contexte ou une activité en ${col.label}`} aria-label={`Ajouter un contexte ou une activité en ${col.label}`}><Plus size={22}/></button>}</div>
+    <div className="personal-period-head"><div><h4>{col.label}</h4><small>{col.subtitle}</small><span>{col.code}</span></div>{!readOnly&&<button type="button" className="personal-period-add" onClick={onAdd} title={`Ajouter un contexte ou une activité en ${col.label}`} aria-label={`Ajouter un contexte ou une activité en ${col.label}`}><Plus size={23} strokeWidth={3.5}/></button>}</div>
     <div className="personal-period-body">
       {items.map((item,index)=><ProgressionCard key={item.id} item={item} files={files.filter(a=>a.progression_item_id===item.id)} readOnly={readOnly} onEdit={()=>onEdit(item)} onDelete={()=>onDelete(item)} onDuplicate={()=>onDuplicate(item)} onDownload={onDownload} onMove={onMove} canMoveUp={index>0} canMoveDown={index<items.length-1} onEvaluate={onEvaluate}/>)}
       {!items.length&&<div className="personal-period-empty">Aucun élément</div>}
