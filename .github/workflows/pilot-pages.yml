@@ -14,15 +14,20 @@ on:
       - ".github/workflows/pilot-pages.yml"
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: propilot-pilot-site
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  build-and-publish-branch:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout V22
         uses: actions/checkout@v4
@@ -53,21 +58,14 @@ jobs:
       - name: Build pilot
         run: npm run build -- --base=/ProPilot-Eco-Gestion/
 
-      - name: Prepare static site
-        run: |
-          rm -rf /tmp/propilot-site
-          mkdir -p /tmp/propilot-site
-          cp -R dist/. /tmp/propilot-site/
-          touch /tmp/propilot-site/.nojekyll
+      - name: Prepare Pages
+        uses: actions/configure-pages@v5
 
-      - name: Publish static build to pilot-site branch
-        run: |
-          git config user.name "ProPilot CI"
-          git config user.email "actions@users.noreply.github.com"
-          git checkout --orphan pilot-site
-          git rm -rf . || true
-          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
-          cp -R /tmp/propilot-site/. .
-          git add -A
-          git commit -m "Build pilote ProPilot"
-          git push --force origin HEAD:pilot-site
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
