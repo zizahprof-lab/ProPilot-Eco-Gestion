@@ -130,11 +130,8 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-timeline-navigation{display:flex;align-items:center;gap:9px;margin:10px 0 12px}
       .personal-timeline-navigation>button{flex:0 0 auto;border:1px solid #d7e0ed;background:#fff;border-radius:11px;min-height:40px;padding:8px 13px;font-weight:650;color:#15233e;cursor:pointer;transition:background .15s,border-color .15s}
       .personal-timeline-navigation>button:hover{background:#eff6ff;border-color:#93b4e8}
-      .personal-scroll-track{flex:1;min-width:100px;overflow-x:auto;overflow-y:hidden;height:20px;background:transparent;border:0;padding:0;scrollbar-width:auto;scrollbar-color:#94a3b8 #e2e8f0}
-      .personal-scroll-track::-webkit-scrollbar{height:13px}
-      .personal-scroll-track::-webkit-scrollbar-track{background:#e2e8f0;border-radius:9px}
-      .personal-scroll-track::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:9px;border:2px solid #e2e8f0}
-      .personal-scroll-track::-webkit-scrollbar-thumb:hover{background:#64748b}
+      /* Même barre native que sous la progression, sans piste ni curseur décoratif. */
+      .personal-scroll-track{flex:1;min-width:100px;overflow-x:scroll;overflow-y:hidden;height:20px;background:transparent;border:0;padding:0}
       .personal-scroll-track:focus-visible{outline:2px solid #2563eb;outline-offset:2px}
       /* Reprise des proportions et couleurs de la progression personnelle V14.1 */
       .personal-timeline{align-items:stretch;gap:12px}
