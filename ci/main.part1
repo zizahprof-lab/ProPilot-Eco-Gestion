@@ -294,6 +294,7 @@ function AuthScreen() {
   const [accountType, setAccountType] = useState('teacher')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [displayName, setDisplayName] = useState('')
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
@@ -329,7 +330,7 @@ function AuthScreen() {
 
   return (
     <div className="auth-layout">
-      <div className="auth-brand">
+      <div className="auth-brand" style={{position:"relative"}}>
         <div className="brand-badge"><GraduationCap size={36}/></div>
         <h1>ProPilot <span>Eco-Gestion</span></h1>
         <p>Suivi pédagogique, compétences, PFMP, CCF et espace élève pour les métiers du commerce et de la vente.</p>
@@ -338,6 +339,7 @@ function AuthScreen() {
           <span><CheckCircle2/> Évaluation tablette</span>
           <span><CheckCircle2/> Synthèse et positionnement</span>
         </div>
+        <div style={{position:"absolute",bottom:20,left:24,color:"#dbe7ff",fontSize:13}}>Créé par Mohamed Zizah</div>
       </div>
       <form className="auth-card" onSubmit={submit}>
         <h2>{mode === 'login' ? 'Connexion' : 'Créer mon compte'}</h2>
@@ -352,7 +354,7 @@ function AuthScreen() {
           </>
         )}
         <label>Adresse e-mail<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required /></label>
-        <label>Mot de passe<input type="password" value={password} onChange={e=>setPassword(e.target.value)} minLength={8} required /></label>{mode==='signup'&&accountType==='teacher'&&<small className="muted auth-domain-hint">Phase pilote : adresse @ac-aix-marseille.fr obligatoire, sauf comptes de test expressément autorisés.</small>}
+        <label>Mot de passe<div style={{position:"relative"}}><input type={showPassword?"text":"password"} value={password} onChange={e=>setPassword(e.target.value)} minLength={8} required style={{paddingRight:48,width:"100%"}}/><button type="button" onClick={()=>setShowPassword(v=>!v)} aria-label={showPassword?"Masquer le mot de passe":"Afficher le mot de passe"} title={showPassword?"Masquer":"Afficher"} style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",border:0,background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",color:"#52627b"}}>{showPassword?<EyeOff size={21}/>:<Eye size={21}/>}</button></div></label>{mode==='signup'&&accountType==='teacher'&&<small className="muted auth-domain-hint">Phase pilote : adresse @ac-aix-marseille.fr obligatoire, sauf comptes de test expressément autorisés.</small>}
         {mode==='login'&&<button type="button" className="link-btn forgot-link" onClick={forgotPassword}>Mot de passe oublié ?</button>}
         {message && <div className="form-message">{message}</div>}
         <button className="btn primary wide" disabled={busy}>{busy ? 'Patiente…' : mode === 'login' ? 'Se connecter' : 'Créer le compte'}</button>
