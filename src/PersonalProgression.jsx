@@ -34,6 +34,8 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
   const [referenceGroups,setReferenceGroups]=useState([])
   const [teacherOptions,setTeacherOptions]=useState([])
   const [open,setOpen]=useState(false)
+  const [addMenu,setAddMenu]=useState(false)
+  const [newKind,setNewKind]=useState('context')
   const [newPeriod,setNewPeriod]=useState(null)
   const [editItem,setEditItem]=useState(null)
   const [cycleView,setCycleView]=useState('cycle')
@@ -71,7 +73,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
     setSyncState('✓ Progression synchronisée')
   }
   useEffect(()=>{load()},[klass.id,klass.diploma_code])
-  useEffect(()=>{if(addRequestToken>0&&!readOnly)setOpen(true)},[addRequestToken,readOnly])
+  useEffect(()=>{if(addRequestToken>0&&!readOnly)setAddMenu(true)},[addRequestToken,readOnly])
 
   async function remove(item){if(!confirm(`Supprimer « ${item.context_name} » ?`))return;await supabase.from('pp_progression_items').delete().eq('id',item.id);load()}
   async function duplicate(item){const {data:{user}}=await supabase.auth.getUser();const {id,created_at,updated_at,revision,...copy}=item;await supabase.from('pp_progression_items').insert({...copy,class_id:klass.id,context_name:`${item.context_name} — copie`,created_by:user.id,status:'Prévu',updated_at:new Date().toISOString()});load()}
@@ -103,7 +105,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
   return <div className="personal-progression personal-reference-ui">
     <div className="personal-progression-toolbar">
       <div><span className="eyebrow">Ergonomie de la version personnelle</span><h3>Progression pédagogique partagée</h3><p>La classe reste vide au départ ; le référentiel, les périodes et les PFMP structurent la progression.</p></div>
-      {!readOnly&&<button className="btn primary" onClick={()=>{setNewPeriod(null);setOpen(true)}}><Plus/>Ajouter un contexte</button>}
+      {!readOnly&&<button className="btn primary" onClick={()=>{setNewPeriod(null);setAddMenu(v=>!v)}}><Plus/>Ajouter</button>}
     </div>
 
     <div className="personal-cycle-selector" role="group" aria-label="Année du cycle affichée">
@@ -121,6 +123,13 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
     {(teacherFilter||groupFilter||levelFilter)&&<p className="muted" role="status">{visible.length} contexte(s) affiché(s) sur {items.length}</p>}
     <style>{`
       .personal-cycle-selector{display:flex;flex-direction:column;gap:7px;margin:14px 0;padding:13px 15px;background:#f8fafc;border:1px solid #dbe4ef;border-radius:13px}
+      .personal-add-menu-backdrop{position:fixed;inset:0;background:#0f172a55;z-index:9998;display:flex;justify-content:flex-end;align-items:flex-start;padding:105px 28px 24px;box-sizing:border-box}
+      .personal-add-menu{width:min(360px,calc(100vw - 40px));background:#fff;border:1px solid #dbe4f0;border-radius:16px;box-shadow:0 18px 55px #0f172a30;padding:14px;display:grid;gap:8px}
+      .personal-add-menu h4{margin:4px 6px 8px;font-size:16px}
+      .personal-add-menu button{text-align:left;display:grid;gap:5px;border:1px solid #e2e8f0;background:#fff;border-radius:12px;padding:14px;cursor:pointer;color:#14233b}
+      .personal-add-menu button:hover{border-color:#3b82f6;background:#eff6ff}
+      .personal-add-menu button small{font-size:12px;color:#64748b}
+      .personal-add-menu button.personal-add-menu-cancel{display:block;text-align:center;color:#64748b}
       .personal-cycle-selector>strong{font-size:11px;letter-spacing:.06em;color:#475569}
       .personal-cycle-selector>small{font-size:11px;color:#64748b}
       .personal-cycle-buttons{display:flex;flex-wrap:wrap;gap:6px}
@@ -171,7 +180,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       <div className="personal-timeline" style={{gridTemplateColumns:timelineColumns.map(col=>col.kind==='pfmp'?'108px':'290px').join(' ')}}>
         {timelineColumns.map(col=>col.kind==='pfmp'
           ? <PfmpColumn key={col.code} col={col}/>
-          : <PeriodColumn key={col.code} col={col} items={visible.filter(i=>i.period_id===col.code)} files={attachments} readOnly={readOnly} onAdd={()=>{setNewPeriod(col.code);setOpen(true)}} onEdit={setEditItem} onDelete={remove} onDuplicate={duplicate} onDownload={downloadAttachment} onMove={moveItem} onEvaluate={onEvaluateContext}/>
+          : <PeriodColumn key={col.code} col={col} items={visible.filter(i=>i.period_id===col.code)} files={attachments} readOnly={readOnly} onAdd={()=>{setNewPeriod(col.code);setNewKind('context');setOpen(true)}} onEdit={setEditItem} onDelete={remove} onDuplicate={duplicate} onDownload={downloadAttachment} onMove={moveItem} onEvaluate={onEvaluateContext}/>
         )}
       </div>
     </div>
@@ -201,7 +210,8 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
     </section>
     </div>
 
-    {!readOnly&&open&&<ProgressionEditor klass={klass} periods={periods} teacherOptions={teacherOptions} initial={newPeriod?{period_id:newPeriod}:null} onClose={()=>{setOpen(false);setNewPeriod(null)}} onSaved={()=>{setOpen(false);setNewPeriod(null);load()}}/>}
+    {!readOnly&&addMenu&&<div className="personal-add-menu-backdrop" onClick={()=>setAddMenu(false)}><div className="personal-add-menu" role="dialog" aria-label="Choisir le type d’ajout" onClick={e=>e.stopPropagation()}><h4>Que souhaitez-vous ajouter ?</h4><button type="button" onClick={()=>{setNewKind('context');setAddMenu(false);setOpen(true)}}><b>Contexte professionnel</b><small>Situation professionnelle reliée au référentiel MCV</small></button><button type="button" onClick={()=>{setNewKind('event');setAddMenu(false);setOpen(true)}}><b>Évènement / activité pédagogique</b><small>Bac blanc, CCF, sortie, projet, révision, oral…</small></button><button type="button" className="personal-add-menu-cancel" onClick={()=>setAddMenu(false)}>Annuler</button></div></div>}
+    {!readOnly&&open&&<ProgressionEditor klass={klass} periods={periods} teacherOptions={teacherOptions} initial={{...(newPeriod?{period_id:newPeriod}:{}),item_kind:newKind}} onClose={()=>{setOpen(false);setNewPeriod(null)}} onSaved={()=>{setOpen(false);setNewPeriod(null);load()}}/>}
     {!readOnly&&editItem&&<ProgressionEditor klass={klass} periods={periods} teacherOptions={teacherOptions} initial={editItem} onClose={()=>setEditItem(null)} onSaved={()=>{setEditItem(null);load()}}/>}
   </div>
 }
