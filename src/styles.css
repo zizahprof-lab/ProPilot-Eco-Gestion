@@ -261,3 +261,13 @@
 .tour-card h2{margin:2px 0 0}.tour-card p{margin:0;color:#64748b;line-height:1.55}
 .tour-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:4px}
 @media(max-width:640px){.tour-overlay{padding:14px}.tour-card{padding:18px}.tour-actions{align-items:stretch;flex-direction:column}.tour-actions>.row{justify-content:flex-end;flex-wrap:wrap}}
+
+
+/* Collaboration: visible but accessible pending-invitation alert */
+.invite-inbox{border:2px solid #fb626c;background:linear-gradient(180deg,#fff3f4 0%,#fff9fa 100%);box-shadow:0 0 0 3px rgba(239,68,68,.06),0 10px 26px rgba(239,68,68,.12)}
+.invite-inbox .panel-head h3{display:flex;align-items:center;gap:10px;color:#dc2626}
+.invite-inbox .panel-head h3 svg{color:#ef233c;animation:propilot-invite-bell 2.4s ease-in-out 3;transform-origin:top center}
+.invite-inbox .panel-head .badge{background:#fecdd3;color:#991b1b;border:1px solid #fda4af;font-weight:800}
+.invite-inbox .invite-card{border-color:#fecdd3}
+@keyframes propilot-invite-bell{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(-14deg)}20%,40%{transform:rotate(14deg)}}
+@media(prefers-reduced-motion:reduce){.invite-inbox .panel-head h3 svg{animation:none}}
