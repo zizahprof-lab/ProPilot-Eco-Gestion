@@ -36,6 +36,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
   const [open,setOpen]=useState(false)
   const [newPeriod,setNewPeriod]=useState(null)
   const [editItem,setEditItem]=useState(null)
+  const [cycleView,setCycleView]=useState('cycle')
   const [teacherFilter,setTeacherFilter]=useState('')
   const [groupFilter,setGroupFilter]=useState('')
   const [levelFilter,setLevelFilter]=useState('')
@@ -82,7 +83,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
   }
   function scrollTimeline(where){const el=timelineRef.current;if(!el)return;if(where==='start')el.scrollTo({left:0,behavior:'smooth'});else if(where==='end')el.scrollTo({left:el.scrollWidth,behavior:'smooth'});else el.scrollBy({left:where*420,behavior:'smooth'})}
 
-  const visible=useMemo(()=>items.filter(i=>(!teacherFilter||i.teacher_label===teacherFilter)&&(!groupFilter||groupKey(i)===groupFilter)&&(!levelFilter||i.learning_level===levelFilter)),[items,teacherFilter,groupFilter,levelFilter])
+  const visible=useMemo(()=>items.filter(i=>(cycleView==='cycle'||(i.cycle_level||levelToCycle(klass.level_label))===cycleView)&&(!teacherFilter||i.teacher_label===teacherFilter)&&(!groupFilter||groupKey(i)===groupFilter)&&(!levelFilter||i.learning_level===levelFilter)),[items,klass.level_label,cycleView,teacherFilter,groupFilter,levelFilter])
   const covered=useMemo(()=>new Set(items.flatMap(i=>competencyCodes(i.competencies))),[items])
   const totalTop=referenceCompetencies.length
   const pByCode=useMemo(()=>Object.fromEntries(periods.map(p=>[p.code,p])),[periods])
@@ -101,6 +102,11 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       {!readOnly&&<button className="btn primary" onClick={()=>{setNewPeriod(null);setOpen(true)}}><Plus/>Ajouter un contexte</button>}
     </div>
 
+    <div className="personal-cycle-selector" role="group" aria-label="Année du cycle affichée">
+      <strong>ANNÉE DU CYCLE AFFICHÉE</strong>
+      <div className="personal-cycle-buttons">{[['premiere','Première'],['terminale','Terminale'],['cycle','Cycle complet · 2 ans']].map(([value,label])=><button type="button" key={value} className={cycleView===value?'active':''} onClick={()=>{setCycleView(value);timelineRef.current?.scrollTo({left:0,behavior:'smooth'})}} aria-pressed={cycleView===value}>{label}{value!=='cycle'&&<small> · {items.filter(i=>(i.cycle_level||levelToCycle(klass.level_label))===value).length} contexte(s)</small>}</button>)}</div>
+      <small>Cette vue filtre uniquement les contextes de la classe ouverte. Les autres classes ne sont pas fusionnées.</small>
+    </div>
     <div className="personal-controls">
       <label className="inline-control"><span>Filtrer par enseignant</span><select value={teacherFilter} onChange={e=>setTeacherFilter(e.target.value)}><option value="">Tous les enseignants</option>{teacherOptions.map(n=><option key={n}>{n}</option>)}</select></label>
       <label className="inline-control"><span>Groupe de compétences</span><select value={groupFilter} onChange={e=>setGroupFilter(e.target.value)}><option value="">Tous les groupes</option>{referenceGroups.map(g=><option key={g.code} value={g.code}>{GROUP_STYLE[g.code]?.personal||g.code} · {g.label}</option>)}</select></label>
@@ -119,6 +125,12 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
     </div>
 
     <style>{`
+      .personal-cycle-selector{display:flex;flex-direction:column;gap:7px;margin:14px 0;padding:13px 15px;background:#f8fafc;border:1px solid #dbe4ef;border-radius:13px}
+      .personal-cycle-selector>strong{font-size:11px;letter-spacing:.06em;color:#475569}
+      .personal-cycle-selector>small{font-size:11px;color:#64748b}
+      .personal-cycle-buttons{display:flex;flex-wrap:wrap;gap:6px}
+      .personal-cycle-buttons button{padding:9px 12px;border:1px solid #dbe4ef;background:#fff;border-radius:9px;color:#334155;cursor:pointer}
+      .personal-cycle-buttons button.active{border-color:#2563eb;background:#eaf2ff;color:#1d4ed8;font-weight:800}
       /* Reprise des proportions et couleurs de la progression personnelle V14.1 */
       .personal-timeline{align-items:stretch;gap:12px}
       .personal-period-column{height:70vh;min-height:570px;max-height:760px;display:flex;flex-direction:column;overflow:hidden;background:#f8fafc}
