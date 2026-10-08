@@ -211,22 +211,17 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
     setAnalyzing(true);setAiProgress(5);setAiStage('Préparation du document');setMessage('Analyse du document en cours…');setAiSuggestion(null)
     try{
       const {data:{user},error:authError}=await supabase.auth.getUser();if(authError||!user)throw new Error('Connectez-vous pour analyser un document.');setAiProgress(15);setAiStage('Envoi sécurisé du document')
-      const path=`${user.id}/ai-review/${Date.now()}-${safeName(file.name)}`
-      const {error:uploadError}=await supabase.storage.from('pp-progression-files').upload(path,file)
-      if(uploadError)throw uploadError
-      setAiProgress(40);setAiStage('Préparation de la lecture par l’IA')
-      try{
-        const {data:signed,error:signError}=await supabase.storage.from('pp-progression-files').createSignedUrl(path,300)
-        if(signError)throw signError
-        setAiProgress(55);setAiStage('Reconnaissance IA en cours — durée variable')
-        const referential=competencies.map(c=>({code:c.code,label:c.label,group:c.group_code,resources:resources.filter(r=>r.competency_code===c.code).map(r=>({behaviours:r.behaviours,knowledge:r.knowledge,expected_results:r.expected_results}))}))
-        const {data,error}=await supabase.functions.invoke('analyze-progression-document',{body:{file_url:signed.signedUrl,file_name:file.name,context_name:f.context_name,problematic:f.problematic,referential,economy_law_referential:econ.map(x=>({code:x.code,label:x.question_label}))}})
-        if(error)throw error
-        if(data?.error)throw new Error(data.message||data.error)
-        if(!data?.analysis)throw new Error('Aucune proposition reçue.')
-        setAiProgress(100);setAiStage('Analyse terminée — propositions prêtes')
-        setAiSuggestion(data.analysis);setAiChecks({});setMessage('Propositions reçues. Vérifiez-les avant de les appliquer.')
-      }finally{await supabase.storage.from('pp-progression-files').remove([path])}
+      if(file.size>5_000_000)throw new Error('Document trop volumineux pour l’analyse (maximum 5 Mo).')
+      setAiProgress(25);setAiStage('Lecture locale du document')
+      const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('Lecture du fichier impossible'));reader.readAsDataURL(file)})
+      setAiProgress(55);setAiStage('Reconnaissance IA en cours — durée variable')
+      const referential=competencies.map(c=>({code:c.code,label:c.label,group:c.group_code,resources:resources.filter(r=>r.competency_code===c.code).map(r=>({behaviours:r.behaviours,knowledge:r.knowledge,expected_results:r.expected_results}))}))
+      const {data,error}=await supabase.functions.invoke('analyze-progression-document',{body:{file_data:dataUrl,file_name:file.name,context_name:f.context_name,problematic:f.problematic,referential,economy_law_referential:econ.map(x=>({code:x.code,label:x.question_label}))}})
+      if(error)throw error
+      if(data?.error)throw new Error(data.message||data.error)
+      if(!data?.analysis)throw new Error('Aucune proposition reçue.')
+      setAiProgress(100);setAiStage('Analyse terminée — propositions prêtes')
+      setAiSuggestion(data.analysis);setAiChecks({});setMessage('Propositions reçues. Vérifiez-les avant de les appliquer.')
     }catch(e){setAiStage('Analyse interrompue');setMessage('Analyse IA indisponible : '+err(e))}finally{setAnalyzing(false)}
   }
   function aiChecked(key){return aiChecks[key]!==false}
