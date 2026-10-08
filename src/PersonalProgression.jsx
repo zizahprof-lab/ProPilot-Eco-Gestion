@@ -105,9 +105,10 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       <label className="inline-control"><span>Filtrer par enseignant</span><select value={teacherFilter} onChange={e=>setTeacherFilter(e.target.value)}><option value="">Tous les enseignants</option>{teacherOptions.map(n=><option key={n}>{n}</option>)}</select></label>
       <label className="inline-control"><span>Groupe de compétences</span><select value={groupFilter} onChange={e=>setGroupFilter(e.target.value)}><option value="">Tous les groupes</option>{referenceGroups.map(g=><option key={g.code} value={g.code}>{GROUP_STYLE[g.code]?.personal||g.code} · {g.label}</option>)}</select></label>
       <label className="inline-control"><span>Niveau</span><select value={levelFilter} onChange={e=>setLevelFilter(e.target.value)}><option value="">Tous les niveaux</option>{LEARNING.map(([k,l])=><option key={k} value={k}>{k} · {l}</option>)}</select></label>
-      <div className="personal-controls-spacer"/><span className="sync-state">{syncState}</span>
+      <div className="personal-controls-spacer"/>{(teacherFilter||groupFilter||levelFilter)&&<button type="button" className="btn ghost" onClick={()=>{setTeacherFilter('');setGroupFilter('');setLevelFilter('')}}>Réinitialiser les filtres</button>}<span className="sync-state">{syncState}</span>
     </div>
 
+    {(teacherFilter||groupFilter||levelFilter)&&<p className="muted" role="status">{visible.length} contexte(s) affiché(s) sur {items.length}</p>}
     <div className="personal-legend">{referenceGroups.map(g=>{const style=GROUP_STYLE[g.code]||{personal:g.code,color:'#94A3B8'};return <span key={g.code} style={{'--c':style.color}}><b>{style.personal}</b> · {g.label}</span>})}</div>
 
     <div className="personal-kpis">
