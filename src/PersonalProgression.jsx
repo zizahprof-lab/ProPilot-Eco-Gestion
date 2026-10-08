@@ -115,15 +115,6 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
     </div>
 
     {(teacherFilter||groupFilter||levelFilter)&&<p className="muted" role="status">{visible.length} contexte(s) affiché(s) sur {items.length}</p>}
-    <div className="personal-legend">{referenceGroups.map(g=>{const style=GROUP_STYLE[g.code]||{personal:g.code,color:'#94A3B8'};return <span key={g.code} style={{'--c':style.color}}><b>{style.personal}</b> · {g.label}</span>})}</div>
-
-    <div className="personal-kpis">
-      <div className="personal-kpi"><span>Compétences programmées</span><strong>{covered.size} / {totalTop}</strong></div>
-      <div className="personal-kpi"><span>Contextes / activités</span><strong>{items.length}</strong></div>
-      <div className="personal-kpi"><span>Éléments terminés</span><strong>{items.filter(i=>i.status==='Terminé').length}</strong></div>
-      <div className="personal-kpi"><span>À ajuster</span><strong>{items.filter(i=>i.status==='À ajuster').length}</strong></div>
-    </div>
-
     <style>{`
       .personal-cycle-selector{display:flex;flex-direction:column;gap:7px;margin:14px 0;padding:13px 15px;background:#f8fafc;border:1px solid #dbe4ef;border-radius:13px}
       .personal-cycle-selector>strong{font-size:11px;letter-spacing:.06em;color:#475569}
@@ -164,6 +155,27 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-v14-levels{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.personal-v14-levels span{padding:9px 12px;border-radius:10px;background:#f1f5f9;font-size:13px}
       @media(max-width:700px){.personal-v14-ring-grid{grid-template-columns:1fr}}
     `}</style>
+    <div className="personal-timeline-navigation no-print"><button onClick={()=>scrollTimeline('start')}>« Début</button><button onClick={()=>scrollTimeline(-1)}>←</button><div className="personal-scroll-track"><span>Progression annuelle</span></div><button onClick={()=>scrollTimeline(1)}>→</button><button onClick={()=>scrollTimeline('end')}>Fin »</button></div>
+    <div className="personal-timeline-wrap" ref={timelineRef}>
+      <div className="personal-timeline" style={{gridTemplateColumns:timelineColumns.map(col=>col.kind==='pfmp'?'108px':'290px').join(' ')}}>
+        {timelineColumns.map(col=>col.kind==='pfmp'
+          ? <PfmpColumn key={col.code} col={col}/>
+          : <PeriodColumn key={col.code} col={col} items={visible.filter(i=>i.period_id===col.code)} files={attachments} readOnly={readOnly} onAdd={()=>{setNewPeriod(col.code);setOpen(true)}} onEdit={setEditItem} onDelete={remove} onDuplicate={duplicate} onDownload={downloadAttachment} onMove={moveItem} onEvaluate={onEvaluateContext}/>
+        )}
+      </div>
+    </div>
+
+    <div className="personal-progression-summary" aria-label="Bilan pédagogique après la progression">
+      <h3>Bilan de la progression pédagogique</h3>
+    <div className="personal-legend">{referenceGroups.map(g=>{const style=GROUP_STYLE[g.code]||{personal:g.code,color:'#94A3B8'};return <span key={g.code} style={{'--c':style.color}}><b>{style.personal}</b> · {g.label}</span>})}</div>
+
+    <div className="personal-kpis">
+      <div className="personal-kpi"><span>Compétences programmées</span><strong>{covered.size} / {totalTop}</strong></div>
+      <div className="personal-kpi"><span>Contextes / activités</span><strong>{items.length}</strong></div>
+      <div className="personal-kpi"><span>Éléments terminés</span><strong>{items.filter(i=>i.status==='Terminé').length}</strong></div>
+      <div className="personal-kpi"><span>À ajuster</span><strong>{items.filter(i=>i.status==='À ajuster').length}</strong></div>
+    </div>
+
     <section className="personal-v14-dashboard" aria-label="Tableau de bord de progression V14.1">
       <div className="personal-v14-dashboard-title"><strong>Tableau de bord pédagogique</strong><span>Programmation et couverture des compétences</span></div>
       <div className="personal-v14-ring-grid">
@@ -176,14 +188,6 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       <div className="personal-v14-groups"><strong>Répartition par groupe de compétences</strong><div className="personal-v14-group-grid">{referenceGroups.map(g=>{const related=referenceCompetencies.filter(c=>c.group_code===g.code);const done=related.filter(c=>covered.has(c.code)).length;const pct=related.length?Math.round(done/related.length*100):0;return <div key={g.code}><span>{GROUP_STYLE[g.code]?.personal||g.code} · {done}/{related.length}</span><div className="personal-v14-meter"><i style={{width:pct+'%',background:GROUP_STYLE[g.code]?.color||'#64748b'}}/></div><small>{pct}%</small></div>})}</div></div>
       <div className="personal-v14-groups"><strong>Niveaux de complexité programmés</strong><div className="personal-v14-levels">{LEARNING.map(([code,label])=><span key={code}><b>{code}</b> {label} : {items.filter(i=>i.learning_level===code).length}</span>)}</div></div>
     </section>
-    <div className="personal-timeline-navigation no-print"><button onClick={()=>scrollTimeline('start')}>« Début</button><button onClick={()=>scrollTimeline(-1)}>←</button><div className="personal-scroll-track"><span>Progression annuelle</span></div><button onClick={()=>scrollTimeline(1)}>→</button><button onClick={()=>scrollTimeline('end')}>Fin »</button></div>
-    <div className="personal-timeline-wrap" ref={timelineRef}>
-      <div className="personal-timeline" style={{gridTemplateColumns:timelineColumns.map(col=>col.kind==='pfmp'?'108px':'290px').join(' ')}}>
-        {timelineColumns.map(col=>col.kind==='pfmp'
-          ? <PfmpColumn key={col.code} col={col}/>
-          : <PeriodColumn key={col.code} col={col} items={visible.filter(i=>i.period_id===col.code)} files={attachments} readOnly={readOnly} onAdd={()=>{setNewPeriod(col.code);setOpen(true)}} onEdit={setEditItem} onDelete={remove} onDuplicate={duplicate} onDownload={downloadAttachment} onMove={moveItem} onEvaluate={onEvaluateContext}/>
-        )}
-      </div>
     </div>
 
     {!readOnly&&open&&<ProgressionEditor klass={klass} periods={periods} teacherOptions={teacherOptions} initial={newPeriod?{period_id:newPeriod}:null} onClose={()=>{setOpen(false);setNewPeriod(null)}} onSaved={()=>{setOpen(false);setNewPeriod(null);load()}}/>}
