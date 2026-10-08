@@ -117,6 +117,18 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       <div className="personal-kpi"><span>À ajuster</span><strong>{items.filter(i=>i.status==='À ajuster').length}</strong></div>
     </div>
 
+    <section className="personal-v14-dashboard" aria-label="Tableau de bord de progression V14.1">
+      <div className="personal-v14-dashboard-title"><strong>Tableau de bord pédagogique</strong><span>Programmation et couverture des compétences</span></div>
+      <div className="personal-v14-ring-grid">
+        {[
+          {label:'Compétences programmées',value:covered.size,total:totalTop,color:'#2589e8'},
+          {label:'Couverture engagée',value:items.filter(i=>i.status==='En cours'||i.status==='Terminé').length,total:items.length,color:'#f59e0b'},
+          {label:'Contextes finalisés',value:items.filter(i=>i.status==='Terminé').length,total:items.length,color:'#10b981'}
+        ].map(k=>{const pct=k.total?Math.round(k.value/k.total*100):0;return <div key={k.label} className="personal-v14-ring-card"><strong>{k.label}</strong><div className="personal-v14-ring" style={{background:`conic-gradient(${k.color} ${pct}%, #e8edf5 0)`}}><div><b>{k.value} / {k.total}</b><span>{pct}%</span></div></div></div>})}
+      </div>
+      <div className="personal-v14-groups"><strong>Répartition par groupe de compétences</strong><div className="personal-v14-group-grid">{referenceGroups.map(g=>{const related=referenceCompetencies.filter(c=>c.group_code===g.code);const done=related.filter(c=>covered.has(c.code)).length;const pct=related.length?Math.round(done/related.length*100):0;return <div key={g.code}><span>{GROUP_STYLE[g.code]?.personal||g.code} · {done}/{related.length}</span><div className="personal-v14-meter"><i style={{width:pct+'%',background:GROUP_STYLE[g.code]?.color||'#64748b'}}/></div><small>{pct}%</small></div>})}</div></div>
+      <div className="personal-v14-groups"><strong>Niveaux de complexité programmés</strong><div className="personal-v14-levels">{LEARNING.map(([code,label])=><span key={code}><b>{code}</b> {label} : {items.filter(i=>i.learning_level===code).length}</span>)}</div></div>
+    </section>
     <div className="personal-timeline-navigation no-print"><button onClick={()=>scrollTimeline('start')}>« Début</button><button onClick={()=>scrollTimeline(-1)}>←</button><div className="personal-scroll-track"><span>Progression annuelle</span></div><button onClick={()=>scrollTimeline(1)}>→</button><button onClick={()=>scrollTimeline('end')}>Fin »</button></div>
     <div className="personal-timeline-wrap" ref={timelineRef}>
       <div className="personal-timeline" style={{gridTemplateColumns:timelineColumns.map(col=>col.kind==='pfmp'?'128px':'310px').join(' ')}}>
