@@ -118,6 +118,23 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
     </div>
 
     <style>{`
+      /* Reprise des proportions et couleurs de la progression personnelle V14.1 */
+      .personal-timeline{align-items:stretch;gap:12px}
+      .personal-period-column{height:70vh;min-height:570px;max-height:760px;display:flex;flex-direction:column;overflow:hidden;background:#f8fafc}
+      .personal-period-head{flex:0 0 auto;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:13px 12px 10px}
+      .personal-period-head>div{text-align:center;width:100%}
+      .personal-period-head h4{font-weight:900;letter-spacing:.01em}
+      .personal-period-add{display:grid;place-items:center;position:relative;margin:8px auto 0;width:34px;height:34px;min-width:34px;min-height:34px;border-radius:50%;background:#fff;color:#1d4ed8;border:1px solid #dbe4ef;box-shadow:0 3px 10px #0f172a20}
+      .personal-period-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:#64748b #e2e8f0;scrollbar-width:thin}
+      .personal-period-theme-p1 .personal-period-head,.personal-period-theme-p5 .personal-period-head{background:linear-gradient(135deg,#2f80ed,#56a8ff);color:#fff}
+      .personal-period-theme-p2 .personal-period-head,.personal-period-theme-p6 .personal-period-head{background:linear-gradient(135deg,#18a96b,#58cf8b);color:#fff}
+      .personal-period-theme-p3 .personal-period-head,.personal-period-theme-p7 .personal-period-head{background:linear-gradient(135deg,#ef4444,#fb7185);color:#fff}
+      .personal-period-theme-p4 .personal-period-head{background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff}
+      .personal-pfmp-column{width:108px;min-width:108px;max-width:108px;background:linear-gradient(180deg,#fff8dc,#ffefad);border:1px solid #f2cf61;align-items:center;justify-content:center}
+      .personal-pfmp-vertical{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;height:100%;padding:12px 8px;color:#5f4500;text-align:center}
+      .personal-pfmp-vertical strong{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.12em;font-size:16px}
+      .personal-pfmp-vertical span{writing-mode:vertical-rl;text-orientation:mixed;font-size:11px}
+      @media(max-width:760px){.personal-period-column{height:64vh;min-height:500px}}
       .personal-v14-dashboard{margin:18px 0 22px;padding:18px;border:1px solid #dbe4ef;border-radius:16px;background:#f8faff}
       .personal-v14-dashboard-title{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
       .personal-v14-dashboard-title strong{font-size:19px;color:#12233c}.personal-v14-dashboard-title span{color:#64748b}
@@ -148,7 +165,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
     </section>
     <div className="personal-timeline-navigation no-print"><button onClick={()=>scrollTimeline('start')}>« Début</button><button onClick={()=>scrollTimeline(-1)}>←</button><div className="personal-scroll-track"><span>Progression annuelle</span></div><button onClick={()=>scrollTimeline(1)}>→</button><button onClick={()=>scrollTimeline('end')}>Fin »</button></div>
     <div className="personal-timeline-wrap" ref={timelineRef}>
-      <div className="personal-timeline" style={{gridTemplateColumns:timelineColumns.map(col=>col.kind==='pfmp'?'128px':'310px').join(' ')}}>
+      <div className="personal-timeline" style={{gridTemplateColumns:timelineColumns.map(col=>col.kind==='pfmp'?'108px':'290px').join(' ')}}>
         {timelineColumns.map(col=>col.kind==='pfmp'
           ? <PfmpColumn key={col.code} col={col}/>
           : <PeriodColumn key={col.code} col={col} items={visible.filter(i=>i.period_id===col.code)} files={attachments} readOnly={readOnly} onAdd={()=>{setNewPeriod(col.code);setOpen(true)}} onEdit={setEditItem} onDelete={remove} onDuplicate={duplicate} onDownload={downloadAttachment} onMove={moveItem} onEvaluate={onEvaluateContext}/>
