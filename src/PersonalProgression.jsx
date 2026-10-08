@@ -85,6 +85,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
 
   const visible=useMemo(()=>items.filter(i=>(cycleView==='cycle'||(i.cycle_level||levelToCycle(klass.level_label))===cycleView)&&(!teacherFilter||i.teacher_label===teacherFilter)&&(!groupFilter||groupKey(i)===groupFilter)&&(!levelFilter||i.learning_level===levelFilter)),[items,klass.level_label,cycleView,teacherFilter,groupFilter,levelFilter])
   const covered=useMemo(()=>new Set(items.flatMap(i=>competencyCodes(i.competencies))),[items])
+  const visibleCovered=useMemo(()=>new Set(visible.flatMap(i=>competencyCodes(i.competencies))),[visible])
   const totalTop=referenceCompetencies.length
   const pByCode=useMemo(()=>Object.fromEntries(periods.map(p=>[p.code,p])),[periods])
   const orderedPfmp=[...pfmps].sort((a,b)=>(a.sort_order||0)-(b.sort_order||0))
@@ -170,10 +171,10 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
     <div className="personal-legend">{referenceGroups.map(g=>{const style=GROUP_STYLE[g.code]||{personal:g.code,color:'#94A3B8'};return <span key={g.code} style={{'--c':style.color}}><b>{style.personal}</b> · {g.label}</span>})}</div>
 
     <div className="personal-kpis">
-      <div className="personal-kpi"><span>Compétences programmées</span><strong>{covered.size} / {totalTop}</strong></div>
-      <div className="personal-kpi"><span>Contextes / activités</span><strong>{items.length}</strong></div>
-      <div className="personal-kpi"><span>Éléments terminés</span><strong>{items.filter(i=>i.status==='Terminé').length}</strong></div>
-      <div className="personal-kpi"><span>À ajuster</span><strong>{items.filter(i=>i.status==='À ajuster').length}</strong></div>
+      <div className="personal-kpi"><span>Compétences programmées</span><strong>{visibleCovered.size} / {totalTop}</strong></div>
+      <div className="personal-kpi"><span>Contextes / activités</span><strong>{visible.length}</strong></div>
+      <div className="personal-kpi"><span>Éléments terminés</span><strong>{visible.filter(i=>i.status==='Terminé').length}</strong></div>
+      <div className="personal-kpi"><span>À ajuster</span><strong>{visible.filter(i=>i.status==='À ajuster').length}</strong></div>
     </div>
 
     <section className="personal-v14-dashboard" aria-label="Tableau de bord de progression V14.1">
@@ -181,12 +182,12 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       <div className="personal-v14-ring-grid">
         {[
           {label:'Compétences programmées',value:covered.size,total:totalTop,color:'#2589e8'},
-          {label:'Couverture engagée',value:items.filter(i=>i.status==='En cours'||i.status==='Terminé').length,total:items.length,color:'#f59e0b'},
-          {label:'Contextes finalisés',value:items.filter(i=>i.status==='Terminé').length,total:items.length,color:'#10b981'}
+          {label:'Couverture engagée',value:visible.filter(i=>i.status==='En cours'||i.status==='Terminé').length,total:items.length,color:'#f59e0b'},
+          {label:'Contextes finalisés',value:visible.filter(i=>i.status==='Terminé').length,total:items.length,color:'#10b981'}
         ].map(k=>{const pct=k.total?Math.round(k.value/k.total*100):0;return <div key={k.label} className="personal-v14-ring-card"><strong>{k.label}</strong><div className="personal-v14-ring" style={{background:`conic-gradient(${k.color} ${pct}%, #e8edf5 0)`}}><div><b>{k.value} / {k.total}</b><span>{pct}%</span></div></div></div>})}
       </div>
-      <div className="personal-v14-groups"><strong>Répartition par groupe de compétences</strong><div className="personal-v14-group-grid">{referenceGroups.map(g=>{const related=referenceCompetencies.filter(c=>c.group_code===g.code);const done=related.filter(c=>covered.has(c.code)).length;const pct=related.length?Math.round(done/related.length*100):0;return <div key={g.code}><span>{GROUP_STYLE[g.code]?.personal||g.code} · {done}/{related.length}</span><div className="personal-v14-meter"><i style={{width:pct+'%',background:GROUP_STYLE[g.code]?.color||'#64748b'}}/></div><small>{pct}%</small></div>})}</div></div>
-      <div className="personal-v14-groups"><strong>Niveaux de complexité programmés</strong><div className="personal-v14-levels">{LEARNING.map(([code,label])=><span key={code}><b>{code}</b> {label} : {items.filter(i=>i.learning_level===code).length}</span>)}</div></div>
+      <div className="personal-v14-groups"><strong>Répartition par groupe de compétences</strong><div className="personal-v14-group-grid">{referenceGroups.map(g=>{const related=referenceCompetencies.filter(c=>c.group_code===g.code);const done=related.filter(c=>visibleCovered.has(c.code)).length;const pct=related.length?Math.round(done/related.length*100):0;return <div key={g.code}><span>{GROUP_STYLE[g.code]?.personal||g.code} · {done}/{related.length}</span><div className="personal-v14-meter"><i style={{width:pct+'%',background:GROUP_STYLE[g.code]?.color||'#64748b'}}/></div><small>{pct}%</small></div>})}</div></div>
+      <div className="personal-v14-groups"><strong>Niveaux de complexité programmés</strong><div className="personal-v14-levels">{LEARNING.map(([code,label])=><span key={code}><b>{code}</b> {label} : {visible.filter(i=>i.learning_level===code).length}</span>)}</div></div>
     </section>
     </div>
 
