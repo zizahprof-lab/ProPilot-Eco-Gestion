@@ -206,6 +206,25 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
 
     <div className="personal-progression-summary" aria-label="Bilan pédagogique après la progression">
       <h3>Bilan de la progression pédagogique</h3>
+      <section style={{background:'#fff',border:'1px solid #dbe4ef',borderRadius:18,padding:20,margin:'18px 0'}} aria-label="Vue annuelle de la progression">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:16,flexWrap:'wrap'}}>
+          <div><h3 style={{margin:'0 0 5px',fontSize:23}}>Vue annuelle de la progression</h3><p style={{margin:0,color:'#64748b'}}>Lecture chronologique des contextes et de la montée en compétence sur l'année</p></div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
+            <select aria-label="Filtrer par enseignant" value={teacherFilter} onChange={e=>setTeacherFilter(e.target.value)} style={{minWidth:220,padding:12,border:'1px solid #d2deec',borderRadius:9,background:'white'}}><option value="">Tous les enseignants</option>{teacherOptions.map(t=><option key={t} value={t}>{t}</option>)}</select>
+            <button type="button" onClick={load} style={{padding:'12px 16px',border:'1px solid #d2deec',borderRadius:9,background:'white',cursor:'pointer'}}>⟳ Actualiser</button>
+          </div>
+        </div>
+        {(()=>{const scope=items.filter(i=>(cycleView==='cycle'||(i.cycle_level||levelToCycle(klass.level_label))===cycleView)&&(!teacherFilter||i.teacher_label===teacherFilter));
+          const missingProblem=scope.filter(i=>!String(i.problematic||'').trim()).length;
+          const missingActivities=scope.filter(i=>!String(i.activities||'').replace(/\\n/g,'').trim()).length;
+          const missingSkills=scope.filter(i=>!competencyCodes(i.competencies).length).length;
+          const missingDuration=scope.filter(i=>!(Number(i.duration_hours)>0)).length;
+          const programmed=new Set(scope.flatMap(i=>competencyCodes(i.competencies)));
+          const missingOfficial=referenceCompetencies.filter(c=>!programmed.has(c.code)).length;
+          const shared=scope.filter(i=>String(i.teacher_label||'').includes('&')||String(i.teacher_label||'').includes(' et ')).length;
+          const rows=[[missingProblem===0,missingProblem===0?'Toutes les problématiques sont renseignées':missingProblem+' contexte(s) sans problématique'],[missingActivities===0,missingActivities===0?'Tous les contextes comportent des activités / productions élèves':missingActivities+' contexte(s) sans activités / productions élèves'],[missingSkills===0,missingSkills===0?'Tous les contextes ont au moins une compétence':missingSkills+' contexte(s) sans compétence'],[missingDuration===0,missingDuration===0?'Toutes les durées prévues sont renseignées':missingDuration+' durée(s) prévue(s) non renseignée(s)'],[missingOfficial===0,missingOfficial===0?'Toutes les compétences du référentiel sont programmées':missingOfficial+' compétence(s) du référentiel non programmée(s)'],[true,shared+' contexte(s) partagé(s) entre enseignants']];
+          return <div style={{marginTop:16,background:'#eef5ff',border:'1px solid #cfe0ff',borderLeft:'4px solid #5b9dff',borderRadius:12,padding:'16px 14px'}}><strong style={{fontSize:16}}>Contrôle qualité de la progression</strong>{rows.map(([ok,label],index)=><div key={index} style={{padding:'8px 0',borderBottom:index===rows.length-1?'none':'1px dotted #bdd8ff',color:ok?'#06713c':'#b45309'}}>{ok?'✓':'⚠'} {label}</div>)}</div>})()}
+      </section>
     <div className="personal-legend">{referenceGroups.map(g=>{const style=GROUP_STYLE[g.code]||{personal:g.code,color:'#94A3B8'};return <span key={g.code} style={{'--c':style.color}}><b>{style.personal}</b> · {g.label}</span>})}</div>
 
     <div className="personal-kpis">
