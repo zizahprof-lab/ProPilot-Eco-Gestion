@@ -217,7 +217,11 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
       setAiProgress(55);setAiStage('Reconnaissance IA en cours — durée variable')
       const referential=competencies.map(c=>({code:c.code,label:c.label,group:c.group_code,resources:resources.filter(r=>r.competency_code===c.code).map(r=>({behaviours:r.behaviours,knowledge:r.knowledge,expected_results:r.expected_results}))}))
       const {data,error}=await supabase.functions.invoke('analyze-progression-document',{body:{file_data:dataUrl,file_name:file.name,context_name:f.context_name,problematic:f.problematic,referential,economy_law_referential:econ.map(x=>({code:x.code,label:x.question_label}))}})
-      if(error)throw error
+      if(error){
+        let detail=''
+        try{const response=error.context;if(response&&typeof response.json==='function'){const payload=await response.json();detail=payload?.message||payload?.error||''}}catch{}
+        throw new Error(detail||error.message||'Erreur de communication avec le service IA')
+      }
       if(data?.error)throw new Error(data.message||data.error)
       if(!data?.analysis)throw new Error('Aucune proposition reçue.')
       setAiProgress(100);setAiStage('Analyse terminée — propositions prêtes')
