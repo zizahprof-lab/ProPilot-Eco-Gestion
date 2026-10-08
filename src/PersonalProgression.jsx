@@ -42,6 +42,8 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
   const [levelFilter,setLevelFilter]=useState('')
   const [syncState,setSyncState]=useState('Synchronisation…')
   const timelineRef=useRef(null)
+  const [timelinePosition,setTimelinePosition]=useState(0)
+  function syncTimelinePosition(){const el=timelineRef.current;if(el)setTimelinePosition(Math.round(el.scrollLeft/Math.max(1,el.scrollWidth-el.clientWidth)*1000))}
 
   async function load(){
     setSyncState('Synchronisation…')
@@ -156,8 +158,8 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-v14-levels{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.personal-v14-levels span{padding:9px 12px;border-radius:10px;background:#f1f5f9;font-size:13px}
       @media(max-width:700px){.personal-v14-ring-grid{grid-template-columns:1fr}}
     `}</style>
-    <div className="personal-timeline-navigation no-print"><button onClick={()=>scrollTimeline('start')}>« Début</button><button onClick={()=>scrollTimeline(-1)}>←</button><div className="personal-scroll-track"><span>Progression annuelle</span></div><button onClick={()=>scrollTimeline(1)}>→</button><button onClick={()=>scrollTimeline('end')}>Fin »</button></div>
-    <div className="personal-timeline-wrap" ref={timelineRef}>
+    <div className="personal-timeline-navigation no-print"><button onClick={()=>scrollTimeline('start')}>« Début</button><button onClick={()=>scrollTimeline(-1)}>←</button><div className="personal-scroll-track"><input type="range" min="0" max="1000" step="1" value={timelinePosition} aria-label="Faire défiler la progression" onChange={e=>{const el=timelineRef.current;if(!el)return;const max=Math.max(0,el.scrollWidth-el.clientWidth);el.scrollLeft=max*Number(e.target.value)/1000;setTimelinePosition(Number(e.target.value))}} style={{width:'100%',cursor:'ew-resize',accentColor:'#64748b'}}/></div><button onClick={()=>scrollTimeline(1)}>→</button><button onClick={()=>scrollTimeline('end')}>Fin »</button></div>
+    <div className="personal-timeline-wrap" ref={timelineRef} onScroll={syncTimelinePosition}>
       <div className="personal-timeline" style={{gridTemplateColumns:timelineColumns.map(col=>col.kind==='pfmp'?'108px':'290px').join(' ')}}>
         {timelineColumns.map(col=>col.kind==='pfmp'
           ? <PfmpColumn key={col.code} col={col}/>
