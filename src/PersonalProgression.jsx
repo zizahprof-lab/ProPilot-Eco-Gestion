@@ -267,20 +267,20 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       /* Reproduction de la présentation V14.1 : grandes jauges, titres, sous-titres et bandeaux */
       .personal-v14-dashboard{background:#f3f6fc;padding:14px}
       .personal-v14-ring-grid{gap:16px}
-      .personal-v14-ring-card,.personal-v14-ring-card:nth-child(2),.personal-v14-ring-card:nth-child(3){background:#fff!important;color:#10294b!important;border:1px solid #d8e3f5!important;border-radius:23px;min-height:280px;padding:20px;display:flex;flex-direction:column;align-items:stretch;gap:12px;box-shadow:none}
-      .personal-v14-ring-heading{display:flex;align-items:center;gap:12px;text-align:left;min-height:50px}
+      .personal-v14-ring-card,.personal-v14-ring-card:nth-child(2),.personal-v14-ring-card:nth-child(3){background:#fff!important;color:#10294b!important;border:1px solid #d8e3f5!important;border-radius:23px;min-height:0;padding:12px 15px;display:flex;flex-direction:column;align-items:stretch;gap:8px;box-shadow:none}
+      .personal-v14-ring-heading{display:flex;align-items:center;gap:12px;text-align:left;min-height:36px}
       .personal-v14-ring-heading>div{display:grid;gap:3px}
-      .personal-v14-ring-heading strong{font-size:18px;color:#10294b}
-      .personal-v14-ring-heading small{font-size:12px;color:#62799d}
-      .personal-v14-ring-icon{width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;font-size:25px;font-weight:800}
-      .personal-v14-ring-card .personal-v14-ring{height:150px;width:150px;flex:0 0 150px;margin:0 auto;border-radius:50%;background:conic-gradient(var(--ring-color) 0%,#e8edf5 0)}
-      .personal-v14-ring-card .personal-v14-ring>div{height:112px;width:112px;background:#fff}
-      .personal-v14-ring-card .personal-v14-ring b{font-size:25px;color:#10294b}
+      .personal-v14-ring-heading strong{font-size:12px;color:#10294b}
+      .personal-v14-ring-heading small{font-size:11px;color:#62799d}
+      .personal-v14-ring-icon{width:34px;height:34px;flex:0 0 34px;border-radius:50%;display:grid;place-items:center;font-size:20px;font-weight:800}
+      .personal-v14-ring-card .personal-v14-ring{height:92px!important;width:92px!important;flex:0 0 92px!important;margin:0 auto;border-radius:50%;background:conic-gradient(var(--ring-color) 0%,#e8edf5 0)}
+      .personal-v14-ring-card .personal-v14-ring>div{height:70px!important;width:70px!important;background:#fff}
+      .personal-v14-ring-card .personal-v14-ring b{font-size:17px;color:#10294b}
       .personal-v14-ring-card .personal-v14-ring span{font-size:15px;color:#10294b}
-      .personal-v14-ring-status{width:100%;padding:12px 14px;border-radius:13px;display:grid;gap:5px;text-align:left;margin-top:auto}
+      .personal-v14-ring-status{width:100%;padding:8px 10px;border-radius:10px;display:grid;gap:5px;text-align:left;margin-top:auto}
       .personal-v14-ring-status b{font-size:14px}
       .personal-v14-ring-status small{font-size:12px;line-height:1.4;color:inherit}
-      .personal-v14-group-grid>div,.personal-v14-group-grid>div:nth-child(2),.personal-v14-group-grid>div:nth-child(3),.personal-v14-group-grid>div:nth-child(4){background:#f6f8fc!important;color:#10294b!important;padding:14px;border-radius:15px}
+      .personal-v14-group-grid>div,.personal-v14-group-grid>div:nth-child(2),.personal-v14-group-grid>div:nth-child(3),.personal-v14-group-grid>div:nth-child(4){background:#f6f8fc!important;color:#10294b!important;padding:9px;border-radius:11px}
       .personal-v14-group-grid small{color:#62799d}
       .personal-v14-group-grid .personal-group-detail-link{color:#4268a5}
       .personal-v14-meter{background:#e7edf5}
@@ -289,6 +289,19 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-v14-group-grid>div:nth-child(2) .personal-v14-meter i{background:#ff9918!important}
       .personal-v14-group-grid>div:nth-child(3) .personal-v14-meter i{background:#8546ef!important}
       .personal-v14-group-grid>div:nth-child(4) .personal-v14-meter i{background:#12ae71!important}
+      .personal-v14-ring-card .personal-v14-ring{display:grid!important;place-items:center!important;background:conic-gradient(var(--ring-color) var(--progress),#e8edf5 0)!important}
+      .personal-v14-ring-card .personal-v14-ring>div{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;border-radius:50%}
+      .personal-v14-ring-card .personal-v14-ring b{font-size:17px!important;white-space:nowrap}
+      .personal-v14-ring-card .personal-v14-ring span{font-size:12px!important}
+      .personal-v14-ring-status small{font-size:11px}
+      .personal-v14-dashboard{padding:10px;margin:10px 0 14px}
+      .personal-v14-ring-grid{gap:10px}
+      .personal-v14-groups{margin-top:10px;padding:10px}
+      .personal-v14-group-grid{gap:8px;margin-top:8px}
+      .personal-v14-levels{margin-top:8px}
+      .personal-v14-dashboard>.personal-v14-groups{display:inline-block;vertical-align:top;width:calc(50% - 5px);box-sizing:border-box}
+      .personal-v14-dashboard>.personal-v14-groups:last-child{margin-left:10px}
+      @media(max-width:950px){.personal-v14-dashboard>.personal-v14-groups{display:block;width:100%}.personal-v14-dashboard>.personal-v14-groups:last-child{margin-left:0}}
       @media(max-width:850px){.personal-v14-ring-grid{grid-template-columns:1fr}.personal-v14-ring-card{min-height:65px}.personal-analytics-levels{grid-template-columns:repeat(2,minmax(0,1fr))}}
       @media(max-width:700px){.personal-v14-ring-grid{grid-template-columns:1fr}}
     `}</style>
@@ -339,7 +352,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
           {label:'Compétences programmées',subtitle:'Compétences distinctes du référentiel MCV',value:covered.size,total:totalTop,color:'#2589e8',symbol:'◎',status:covered.size===totalTop?'✓ Référentiel entièrement programmé':'Référentiel en cours de programmation',detail:`${covered.size} compétences officielles distinctes sur ${totalTop}.`},
           {label:'Couverture engagée',subtitle:'Compétences dans des éléments « En cours » ou « Terminé »',value:new Set(visible.filter(i=>i.status==='En cours'||i.status==='Terminé').flatMap(i=>competencyCodes(i.competencies))).size,total:totalTop,color:'#f59e0b',symbol:'▥',status:'◷ En progression',detail:'Compétences effectivement engagées dans les contextes.'},
           {label:'Contextes finalisés',subtitle:'Statut « Terminé »',value:visible.filter(i=>i.status==='Terminé').length,total:visible.length,color:'#10b981',symbol:'⚑',status:'À venir',detail:'Contextes pédagogiques terminés.'}
-        ].map(k=>{const pct=k.total?Math.round(k.value/k.total*100):0;return <div key={k.label} className="personal-v14-ring-card" style={{'--ring-color':k.color}}><div className="personal-v14-ring-heading"><span className="personal-v14-ring-icon" style={{color:k.color,background:k.color+'19'}}>{k.symbol}</span><div><strong>{k.label}</strong><small>{k.subtitle}</small></div></div><div className="personal-v14-ring" style={{background:`conic-gradient(${k.color} ${pct}%, #e8edf5 0)`}}><div><b>{k.value} / {k.total}</b><span>{pct}%</span></div></div><div className="personal-v14-ring-status" style={{background:k.color+'16',color:k.color}}><b>{k.status}</b><small>{k.detail}</small></div></div>})}
+        ].map(k=>{const pct=k.total?Math.round(k.value/k.total*100):0;return <div key={k.label} className="personal-v14-ring-card" style={{'--ring-color':k.color}}><div className="personal-v14-ring-heading"><span className="personal-v14-ring-icon" style={{color:k.color,background:k.color+'19'}}>{k.symbol}</span><div><strong>{k.label}</strong><small>{k.subtitle}</small></div></div><div className="personal-v14-ring" style={{'--progress':pct+'%',background:`conic-gradient(${k.color} ${pct}%, #e8edf5 0)`}}><div><b>{k.value} / {k.total}</b><span>{pct}%</span></div></div><div className="personal-v14-ring-status" style={{background:k.color+'16',color:k.color}}><b>{k.status}</b><small>{k.detail}</small></div></div>})}
       </div>
       <div className="personal-v14-groups"><strong>Répartition par groupe de compétences</strong><div className="personal-v14-group-grid">{referenceGroups.map(g=>{const related=referenceCompetencies.filter(c=>c.group_code===g.code);const done=related.filter(c=>visibleCovered.has(c.code)).length;const pct=related.length?Math.round(done/related.length*100):0;return <div key={g.code}><span>{GROUP_STYLE[g.code]?.personal||g.code} · {done}/{related.length}</span><div className="personal-v14-meter"><i style={{width:pct+'%',background:GROUP_STYLE[g.code]?.color||'#64748b'}}/></div><small>{pct}%</small><button type="button" className="personal-group-detail-link" onClick={()=>{setDetailGroup(g.code);setExpandedCompetency(null)}}>Voir le détail ›</button></div>})}</div></div>
       <div className="personal-analytics">
