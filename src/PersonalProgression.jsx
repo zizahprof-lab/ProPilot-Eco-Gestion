@@ -208,6 +208,39 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-v14-group-grid>div{display:grid;gap:6px;font-size:13px}
       .personal-v14-meter{height:9px;border-radius:20px;background:#e8edf5;overflow:hidden}.personal-v14-meter i{display:block;height:100%;border-radius:20px}
       .personal-v14-levels{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.personal-v14-levels span{padding:9px 12px;border-radius:10px;background:#f1f5f9;font-size:13px}
+      /* Tableau de bord dense, contrasté et lumineux */
+      .personal-v14-dashboard{padding:13px 15px;margin:12px 0 16px;border-radius:16px;background:#f6f9ff}
+      .personal-v14-dashboard-title{margin-bottom:10px;align-items:center}
+      .personal-v14-dashboard-title strong{font-size:18px}
+      .personal-v14-ring-grid{gap:9px}
+      .personal-v14-ring-card{min-height:84px;padding:10px 13px;gap:10px;flex-direction:row;justify-content:space-between;text-align:left;background:linear-gradient(120deg,#fff 30%,#edf5ff);border-color:#cbdcf9;box-shadow:0 2px 8px #1e40af0a}
+      .personal-v14-ring-card:nth-child(2){background:linear-gradient(120deg,#fff 30%,#fff0cc);border-color:#fbd38d}
+      .personal-v14-ring-card:nth-child(3){background:linear-gradient(120deg,#fff 30%,#d6ffed);border-color:#8ee7c1}
+      .personal-v14-ring-card>strong{font-size:14px;max-width:160px;color:#10294b;line-height:1.3}
+      .personal-v14-ring{width:70px;height:70px;flex:0 0 70px}
+      .personal-v14-ring>div{width:49px;height:49px}
+      .personal-v14-ring b{font-size:12px;white-space:nowrap;color:#0f2a4a}
+      .personal-v14-ring span{font-size:11px;font-weight:700}
+      .personal-v14-groups{margin-top:10px;padding:12px 14px;border-color:#cbdcf9}
+      .personal-v14-group-grid{gap:9px;margin-top:9px}
+      .personal-v14-group-grid>div{padding:10px 12px;border-radius:11px;background:#eff5ff;gap:4px;font-weight:600}
+      .personal-v14-group-grid>div:nth-child(2){background:#fff3df}
+      .personal-v14-group-grid>div:nth-child(3){background:#f3eaff}
+      .personal-v14-group-grid>div:nth-child(4){background:#e5fff0}
+      .personal-v14-meter{height:7px;background:#dbe4f2}
+      .personal-v14-group-grid small{font-weight:700;color:#334155}
+      .personal-analytics-panel{padding:12px 14px}
+      .personal-analytics-panel h3{margin:0 0 4px;font-size:17px}
+      .personal-analytics-panel p{margin:4px 0 10px}
+      .personal-analytics-levels{gap:8px}
+      .personal-analytics-levels>div{padding:10px 8px;gap:2px;border:1px solid #c4d7f8}
+      .personal-analytics-levels>div:nth-child(1){background:#c8ddff;color:#104bbd}
+      .personal-analytics-levels>div:nth-child(2){background:#ffedaa;color:#974100;border-color:#ffd36c}
+      .personal-analytics-levels>div:nth-child(3){background:#e2d1ff;color:#6223c6;border-color:#c8a5ff}
+      .personal-analytics-levels>div:nth-child(4){background:#c6f7db;color:#087f43;border-color:#84e3b0}
+      .personal-analytics-levels b{font-size:22px}
+      .personal-analytics-levels span{font-size:12px;font-weight:700}
+      @media(max-width:850px){.personal-v14-ring-grid{grid-template-columns:1fr}.personal-v14-ring-card{min-height:65px}.personal-analytics-levels{grid-template-columns:repeat(2,minmax(0,1fr))}}
       @media(max-width:700px){.personal-v14-ring-grid{grid-template-columns:1fr}}
     `}</style>
     <div className="personal-timeline-navigation no-print"><button onClick={()=>scrollTimeline('start')}>« Début</button><button onClick={()=>scrollTimeline(-1)}>←</button><div className="personal-scroll-track" ref={topScrollRef} onScroll={syncFromTop} role="region" aria-label="Barre de défilement supérieure de la progression" tabIndex={0}><div style={{width:timelineColumns.reduce((total,col)=>total+(col.kind==='pfmp'?108:290),0)+Math.max(0,timelineColumns.length-1)*12,height:1}}/></div><button onClick={()=>scrollTimeline(1)}>→</button><button onClick={()=>scrollTimeline('end')}>Fin »</button></div>
