@@ -34,6 +34,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
   const [referenceGroups,setReferenceGroups]=useState([])
   const [teacherOptions,setTeacherOptions]=useState([])
   const [open,setOpen]=useState(false)
+  const [newPeriod,setNewPeriod]=useState(null)
   const [editItem,setEditItem]=useState(null)
   const [teacherFilter,setTeacherFilter]=useState('')
   const [groupFilter,setGroupFilter]=useState('')
@@ -97,7 +98,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
   return <div className="personal-progression personal-reference-ui">
     <div className="personal-progression-toolbar">
       <div><span className="eyebrow">Ergonomie de la version personnelle</span><h3>Progression pédagogique partagée</h3><p>La classe reste vide au départ ; le référentiel, les périodes et les PFMP structurent la progression.</p></div>
-      {!readOnly&&<button className="btn primary" onClick={()=>setOpen(true)}><Plus/>Ajouter un contexte</button>}
+      {!readOnly&&<button className="btn primary" onClick={()=>{setNewPeriod(null);setOpen(true)}}><Plus/>Ajouter un contexte</button>}
     </div>
 
     <div className="personal-controls">
@@ -121,19 +122,19 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       <div className="personal-timeline" style={{gridTemplateColumns:timelineColumns.map(col=>col.kind==='pfmp'?'128px':'310px').join(' ')}}>
         {timelineColumns.map(col=>col.kind==='pfmp'
           ? <PfmpColumn key={col.code} col={col}/>
-          : <PeriodColumn key={col.code} col={col} items={visible.filter(i=>i.period_id===col.code)} files={attachments} readOnly={readOnly} onEdit={setEditItem} onDelete={remove} onDuplicate={duplicate} onDownload={downloadAttachment} onMove={moveItem} onEvaluate={onEvaluateContext}/>
+          : <PeriodColumn key={col.code} col={col} items={visible.filter(i=>i.period_id===col.code)} files={attachments} readOnly={readOnly} onAdd={()=>{setNewPeriod(col.code);setOpen(true)}} onEdit={setEditItem} onDelete={remove} onDuplicate={duplicate} onDownload={downloadAttachment} onMove={moveItem} onEvaluate={onEvaluateContext}/>
         )}
       </div>
     </div>
 
-    {!readOnly&&open&&<ProgressionEditor klass={klass} periods={periods} teacherOptions={teacherOptions} onClose={()=>setOpen(false)} onSaved={()=>{setOpen(false);load()}}/>}
+    {!readOnly&&open&&<ProgressionEditor klass={klass} periods={periods} teacherOptions={teacherOptions} initial={newPeriod?{period_id:newPeriod}:null} onClose={()=>{setOpen(false);setNewPeriod(null)}} onSaved={()=>{setOpen(false);setNewPeriod(null);load()}}/>}
     {!readOnly&&editItem&&<ProgressionEditor klass={klass} periods={periods} teacherOptions={teacherOptions} initial={editItem} onClose={()=>setEditItem(null)} onSaved={()=>{setEditItem(null);load()}}/>}
   </div>
 }
 
-function PeriodColumn({col,items,files,readOnly,onEdit,onDelete,onDuplicate,onDownload,onMove,onEvaluate}){
+function PeriodColumn({col,items,files,readOnly,onAdd,onEdit,onDelete,onDuplicate,onDownload,onMove,onEvaluate}){
   return <section className={`personal-period-column personal-period-theme-${col.code.toLowerCase()}`}>
-    <div className="personal-period-head"><div><h4>{col.label}</h4><small>{col.subtitle}</small><span>{col.code}</span></div></div>
+    <div className="personal-period-head"><div><h4>{col.label}</h4><small>{col.subtitle}</small><span>{col.code}</span></div>{!readOnly&&<button type="button" className="personal-period-add" onClick={onAdd} title={`Ajouter un contexte ou une activité en ${col.label}`} aria-label={`Ajouter un contexte ou une activité en ${col.label}`}><Plus size={22}/></button>}</div>
     <div className="personal-period-body">
       {items.map((item,index)=><ProgressionCard key={item.id} item={item} files={files.filter(a=>a.progression_item_id===item.id)} readOnly={readOnly} onEdit={()=>onEdit(item)} onDelete={()=>onDelete(item)} onDuplicate={()=>onDuplicate(item)} onDownload={onDownload} onMove={onMove} canMoveUp={index>0} canMoveDown={index<items.length-1} onEvaluate={onEvaluate}/>)}
       {!items.length&&<div className="personal-period-empty">Aucun élément</div>}
