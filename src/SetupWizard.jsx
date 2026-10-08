@@ -147,7 +147,13 @@ export default function SetupWizard({onClose,onCreated}){
   async function next(){
     setMessage('')
     if(step===1)await patch({establishment_name:draft.establishment_name,establishment_city:draft.establishment_city,establishment_logo_path:draft.establishment_logo_path||null},2)
-    if(step===2)await patch({diploma_code:draft.diploma_code,school_year:draft.school_year||'2026-2027',class_name:draft.class_name,level_label:draft.level_label,reference_ready:true},3)
+    if(step===2){
+      if(!draft.diploma_code||!draft.class_name?.trim()||!draft.level_label?.trim()){setMessage('Champs manquants : '+[!draft.diploma_code?'diplôme':null,!draft.class_name?.trim()?'nom de classe':null,!draft.level_label?.trim()?'niveau':null].filter(Boolean).join(', '));return}
+      setBusy(true);setMessage('Enregistrement de la classe en cours…')
+      try {await patch({diploma_code:draft.diploma_code,school_year:draft.school_year||'2026-2027',class_name:draft.class_name.trim(),level_label:draft.level_label,reference_ready:reference.competencies>0&&reference.exams.length>0},3)}
+      catch(error){setMessage('Erreur lors du passage à l’étape 3 : '+String(error?.message||error))}
+      finally {setBusy(false)}
+    }
     if(step===3)await patch({organization_mode:draft.organization_mode,collaborators:collaborators()},4)
     if(step===4)await patch({enabled_modules:draft.enabled_modules||DEFAULT_MODULES,pfmp_periods:pfmps()},5)
     if(step===5)setStep(6)
@@ -176,7 +182,7 @@ export default function SetupWizard({onClose,onCreated}){
         {step===6&&<div className="setup-section"><div className="setup-summary"><CheckCircle2/><div><h3>Votre boîte à outils est prête à être créée</h3><p>La classe sera vide de vos données pédagogiques personnelles, mais le bon référentiel, les périodes P1 à P7, les transversalités économie-droit et les épreuves correspondant au diplôme sont déjà disponibles.</p></div></div><div className="summary-list"><div><span>Établissement</span><b>{draft.establishment_name} — {draft.establishment_city}</b></div><div><span>Classe</span><b>{draft.class_name} • {draft.level_label} • {draft.school_year}</b></div><div><span>Diplôme</span><b>{packs.find(p=>p.code===draft.diploma_code)?.short_name||draft.diploma_code}</b></div><div><span>Organisation</span><b>{draft.organization_mode} • {collaborators().length} collègue(s) invité(s)</b></div><div><span>PFMP</span><b>{pfmps().length} période(s)</b></div><div><span>Élèves à importer</span><b>{studentsPreview.length}</b></div></div></div>}
 
         {message&&<div className="form-message">{message}</div>}
-        <div className="setup-actions"><button className="btn ghost" onClick={step===1?onClose:back}><ArrowLeft/>{step===1?'Fermer':'Retour'}</button>{step<6?<button className="btn primary" disabled={!canNext||busy} onClick={next}>Continuer <ChevronRight/></button>:<button className="btn primary" disabled={busy} onClick={finalize}><Save/>{busy?'Création…':'Créer la classe'}</button>}</div>
+        <div className="setup-actions"><button className="btn ghost" onClick={step===1?onClose:back}><ArrowLeft/>{step===1?'Fermer':'Retour'}</button>{step<6?<button className="btn primary" disabled={busy||(step!==2&&!canNext)} onClick={next}>Continuer <ChevronRight/></button>:<button className="btn primary" disabled={busy} onClick={finalize}><Save/>{busy?'Création…':'Créer la classe'}</button>}</div>
       </section>
     </div>
   </div>
