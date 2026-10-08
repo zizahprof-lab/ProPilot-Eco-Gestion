@@ -16,6 +16,7 @@ export default function SetupWizard({onClose,onCreated}){
   const [step,setStep]=useState(1)
   const [busy,setBusy]=useState(false)
   const [message,setMessage]=useState('')
+  const [step2Clicks,setStep2Clicks]=useState(0)
   const [studentsFile,setStudentsFile]=useState(null)
   const [studentsPreview,setStudentsPreview]=useState([])
   const [currentEmail,setCurrentEmail]=useState('')
@@ -148,6 +149,7 @@ export default function SetupWizard({onClose,onCreated}){
     setMessage('')
     if(step===1)await patch({establishment_name:draft.establishment_name,establishment_city:draft.establishment_city,establishment_logo_path:draft.establishment_logo_path||null},2)
     if(step===2){
+      setStep2Clicks(n=>n+1)
       if(!draft.diploma_code||!draft.class_name?.trim()||!draft.level_label?.trim()){
         setMessage('Champs manquants : '+[!draft.diploma_code?'diplôme':null,!draft.class_name?.trim()?'nom de classe':null,!draft.level_label?.trim()?'niveau':null].filter(Boolean).join(', '));return
       }
@@ -191,8 +193,9 @@ export default function SetupWizard({onClose,onCreated}){
 
         {step===6&&<div className="setup-section"><div className="setup-summary"><CheckCircle2/><div><h3>Votre boîte à outils est prête à être créée</h3><p>La classe sera vide de vos données pédagogiques personnelles, mais le bon référentiel, les périodes P1 à P7, les transversalités économie-droit et les épreuves correspondant au diplôme sont déjà disponibles.</p></div></div><div className="summary-list"><div><span>Établissement</span><b>{draft.establishment_name} — {draft.establishment_city}</b></div><div><span>Classe</span><b>{draft.class_name} • {draft.level_label} • {draft.school_year}</b></div><div><span>Diplôme</span><b>{packs.find(p=>p.code===draft.diploma_code)?.short_name||draft.diploma_code}</b></div><div><span>Organisation</span><b>{draft.organization_mode} • {collaborators().length} collègue(s) invité(s)</b></div><div><span>PFMP</span><b>{pfmps().length} période(s)</b></div><div><span>Élèves à importer</span><b>{studentsPreview.length}</b></div></div></div>}
 
+        {step===2&&<div className="form-hint" role="status">Diagnostic étape 2 : bouton actif · clics reçus : {step2Clicks} · sauvegarde : {busy?'en cours':'au repos'} · diplôme : {draft.diploma_code||'non choisi'} · classe : {draft.class_name||'vide'} · niveau : {draft.level_label||'non choisi'}</div>}
         {message&&<div className="form-message">{message}</div>}
-        <div className="setup-actions"><button className="btn ghost" onClick={step===1?onClose:back}><ArrowLeft/>{step===1?'Fermer':'Retour'}</button>{step<6?<button className="btn primary" disabled={busy||(step!==2&&!canNext)} onClick={next}>Continuer <ChevronRight/></button>:<button className="btn primary" disabled={busy} onClick={finalize}><Save/>{busy?'Création…':'Créer la classe'}</button>}</div>
+        <div className="setup-actions"><button className="btn ghost" onClick={step===1?onClose:back}><ArrowLeft/>{step===1?'Fermer':'Retour'}</button>{step<6?<button className="btn primary" disabled={step!==2&&(busy||!canNext)} type="button" onClick={next}>Continuer <ChevronRight/></button>:<button className="btn primary" disabled={busy} onClick={finalize}><Save/>{busy?'Création…':'Créer la classe'}</button>}</div>
       </section>
     </div>
   </div>
