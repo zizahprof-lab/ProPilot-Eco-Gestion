@@ -125,6 +125,19 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-cycle-buttons{display:flex;flex-wrap:wrap;gap:6px}
       .personal-cycle-buttons button{padding:9px 12px;border:1px solid #dbe4ef;background:#fff;border-radius:9px;color:#334155;cursor:pointer}
       .personal-cycle-buttons button.active{border-color:#2563eb;background:#eaf2ff;color:#1d4ed8;font-weight:800}
+      /* Barre haute type V14.1 : piste discrète et curseur large, glissable. */
+      .personal-timeline-navigation{display:flex;align-items:center;gap:9px;margin:10px 0 12px}
+      .personal-timeline-navigation>button{flex:0 0 auto;border:1px solid #d7e0ed;background:#fff;border-radius:11px;min-height:40px;padding:8px 13px;font-weight:650;color:#15233e;cursor:pointer;transition:background .15s,border-color .15s}
+      .personal-timeline-navigation>button:hover{background:#eff6ff;border-color:#93b4e8}
+      .personal-scroll-track{flex:1;min-width:100px;display:flex;align-items:center;height:27px;padding:0 5px;background:#e2e8f0;border-radius:8px}
+      .personal-scroll-range{appearance:none;-webkit-appearance:none;display:block;width:100%;height:20px;margin:0;background:transparent;cursor:ew-resize}
+      .personal-scroll-range::-webkit-slider-runnable-track{height:12px;background:#dbe3ee;border-radius:8px}
+      .personal-scroll-range::-moz-range-track{height:12px;background:#dbe3ee;border-radius:8px}
+      .personal-scroll-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:clamp(72px,28vw,420px);height:12px;margin-top:0;border:0;border-radius:8px;background:#94a3b8;box-shadow:inset 0 0 0 1px #94a3b8}
+      .personal-scroll-range::-moz-range-thumb{width:clamp(72px,28vw,420px);height:12px;border:0;border-radius:8px;background:#94a3b8}
+      .personal-scroll-range:hover::-webkit-slider-thumb{background:#64748b}
+      .personal-scroll-range:hover::-moz-range-thumb{background:#64748b}
+      .personal-scroll-range:focus-visible{outline:2px solid #2563eb;outline-offset:3px}
       /* Reprise des proportions et couleurs de la progression personnelle V14.1 */
       .personal-timeline{align-items:stretch;gap:12px}
       .personal-period-column{height:70vh;min-height:570px;max-height:760px;display:flex;flex-direction:column;overflow:hidden;background:#f8fafc}
@@ -158,7 +171,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-v14-levels{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.personal-v14-levels span{padding:9px 12px;border-radius:10px;background:#f1f5f9;font-size:13px}
       @media(max-width:700px){.personal-v14-ring-grid{grid-template-columns:1fr}}
     `}</style>
-    <div className="personal-timeline-navigation no-print"><button onClick={()=>scrollTimeline('start')}>« Début</button><button onClick={()=>scrollTimeline(-1)}>←</button><div className="personal-scroll-track"><input type="range" min="0" max="1000" step="1" value={timelinePosition} aria-label="Faire défiler la progression" onChange={e=>{const el=timelineRef.current;if(!el)return;const max=Math.max(0,el.scrollWidth-el.clientWidth);el.scrollLeft=max*Number(e.target.value)/1000;setTimelinePosition(Number(e.target.value))}} style={{width:'100%',cursor:'ew-resize',accentColor:'#64748b'}}/></div><button onClick={()=>scrollTimeline(1)}>→</button><button onClick={()=>scrollTimeline('end')}>Fin »</button></div>
+    <div className="personal-timeline-navigation no-print"><button onClick={()=>scrollTimeline('start')}>« Début</button><button onClick={()=>scrollTimeline(-1)}>←</button><div className="personal-scroll-track"><input className="personal-scroll-range" type="range" min="0" max="1000" step="1" value={timelinePosition} aria-label="Faire défiler la progression" onChange={e=>{const el=timelineRef.current;if(!el)return;const max=Math.max(0,el.scrollWidth-el.clientWidth);el.scrollLeft=max*Number(e.target.value)/1000;setTimelinePosition(Number(e.target.value))}} /></div><button onClick={()=>scrollTimeline(1)}>→</button><button onClick={()=>scrollTimeline('end')}>Fin »</button></div>
     <div className="personal-timeline-wrap" ref={timelineRef} onScroll={syncTimelinePosition}>
       <div className="personal-timeline" style={{gridTemplateColumns:timelineColumns.map(col=>col.kind==='pfmp'?'108px':'290px').join(' ')}}>
         {timelineColumns.map(col=>col.kind==='pfmp'
