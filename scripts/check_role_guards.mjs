@@ -9,7 +9,7 @@ const checks=[
   ['+ Ajouter masqué en lecture seule', main.includes("{!readOnly&&<button className=\"reference-add-btn\"")],
   ['Réglages réservés à can_manage', main.includes("{access.can_manage&&<button className=\"reference-settings-btn\"")],
   ['Onglet réglages rendu seulement avec can_manage', main.includes("tab==='settings' && access.can_manage")],
-  ['Ajout/import élèves masqués en lecture seule', main.includes("{!readOnly&&<div className=\"row\"><button className=\"btn\" onClick={()=>setShowImport(true)}")],
+  ['Ajout/import élèves masqués en lecture seule', main.includes("{!readOnly&&<><button className=\"btn\" onClick={()=>setShowImport(true)}") && main.includes("setShowAdd(true)")],
   ['Accès élève transmet readOnly au modal', main.includes("<EditStudentModal student={selected} readOnly={readOnly}")],
   ['Modal élève désactive les champs en lecture seule', main.includes('disabled={readOnly} value={f.last_name}') && main.includes('disabled={readOnly} type="checkbox"')],
   ['Modal élève ne propose pas Enregistrer en lecture seule', main.includes("{!readOnly&&<button className=\"btn primary\">Enregistrer</button>}")],
