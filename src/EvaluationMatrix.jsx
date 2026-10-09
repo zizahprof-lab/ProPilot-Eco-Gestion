@@ -12,7 +12,7 @@ export default function EvaluationMatrix({klass,readOnly=false,onClassic}){
  supabase.from('pp_competencies').select('code,label,group_code,parent_code').eq('diploma_code',klass.diploma_code).order('sort_order')
  ]).then(([s,i,c])=>{if(!active)return;setStudents(s.data||[]);setItems((i.data||[]).filter(x=>x.context_name&&codes(x.competencies).length));setCompetencies(c.data||[]);setContext(prev=>prev||(localStorage.getItem('pp_last_context_'+klass.id)||i.data?.find(x=>codes(x.competencies).length)?.id||''))}).catch(e=>setMessage(e.message));return()=>{active=false}},[klass.id,klass.diploma_code])
  const is2MRC=klass.diploma_code==='2MRC'
- const selected=items.find(i=>i.id===context)
+ const selected=is2MRC?null:items.find(i=>i.id===context)
  const target=useMemo(()=>{if(is2MRC){return competencies.filter(c=>c.parent_code)}if(!selected)return [];const all=codes(selected.competencies);return all.map(code=>competencies.find(c=>c.code===code&&!c.parent_code)).filter(Boolean)},[selected,competencies,is2MRC])
  const visible=students.filter(s=>(!group||s.group_name===group)&&(!search||((s.last_name||'')+' '+(s.first_name||'')).toLowerCase().includes(search.toLowerCase())))
  const groups=[...new Set(students.map(s=>s.group_name).filter(Boolean))].sort()
