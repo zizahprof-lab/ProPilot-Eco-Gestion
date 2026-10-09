@@ -680,4 +680,4 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
 function levelToCycle(label){const v=String(label||'').toLowerCase();if(v.includes('term'))return 'terminale';if(v.includes('2'))return 'seconde';return 'premiere'}
 function normalizeEcon(arr){return (Array.isArray(arr)?arr:[]).map(x=>typeof x==='string'?x:(x.code||x.econ_law_code||null)).filter(Boolean)}
 
-.progression-editor-modal .editor-section h4,.progression-editor-modal .editor-section h5,.progression-editor-modal .editor-section legend,.progression-editor-modal .uploaded-files>strong{font-family:Arial,Helvetica,sans-serif!important;font-weight:700!important;font-style:normal!important}
+
