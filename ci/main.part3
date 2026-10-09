@@ -221,7 +221,7 @@ function QuickEvaluationTab({ klass, readOnly=false }) {
     if(error)setMessage(toastError(error));else{setMessage(`${rows.length} positionnement(s) enregistré(s).`);setBulkLevels({});await Promise.all([loadRecent(),loadSessionEvaluated()])}
     setBulkBusy(false)
   }
-  if(mode==='matrix')return <EvaluationMatrix klass={klass} readOnly={readOnly} onClassic={()=>setMode('individual')}/>
+  return <EvaluationMatrix klass={klass} readOnly={readOnly}/>
   if(readOnly) return <div className="empty-state compact"><Eye/><h3>Classe en lecture seule</h3><p>Vous pouvez consulter les données, mais seul un propriétaire ou un éditeur peut saisir des évaluations.</p></div>
 
   return <div className="tablet-evaluation-workspace">
