@@ -586,6 +586,23 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
 .progression-editor-modal .ai-review-item:hover{background:#eff6ff}
 .progression-editor-modal .ai-review-item input{flex-shrink:0;margin-top:5px}
 
+/* Fidélité à la charte de référence : Arial partout, contraste et densité maîtrisés */
+.progression-editor-modal,.progression-editor-modal *:not(svg):not(path){font-family:Arial,Helvetica,sans-serif!important;letter-spacing:normal}
+.progression-editor-modal .modal-head{padding:12px 18px 10px}
+.progression-editor-modal .modal-head h3{font-size:27px;font-weight:700;line-height:1.15}
+.progression-editor-modal .eyebrow{font-size:11px;font-weight:700;letter-spacing:.04em;color:#64748b}
+.progression-editor-modal .editor-section{padding:12px 16px;margin:9px 0;border-radius:13px}
+.progression-editor-modal .editor-section>h4,.progression-editor-modal .editor-section-title h4{font-size:17px;font-weight:700;margin:0 0 9px}
+.progression-editor-modal .file-drop{padding:12px 14px!important;gap:5px!important;min-height:0!important;background:#f4f8ff;border:1.5px dashed #93b4fa;border-radius:13px}
+.progression-editor-modal .file-drop>span{font-size:16px;font-weight:700!important;line-height:1.3}
+.progression-editor-modal .file-drop input{font-family:Arial,Helvetica,sans-serif!important;font-size:14px;font-weight:400}
+.progression-editor-modal .file-drop small{font-size:12px;font-weight:400;color:#60738f}
+.progression-editor-modal .attachment-list{margin:4px 0 7px}
+.progression-editor-modal .attachment-list>div{padding:7px 10px;min-height:0}
+.progression-editor-modal .editor-section .muted{font-size:14px;line-height:1.45;margin:5px 0 10px}
+.progression-editor-modal .btn{font-family:Arial,Helvetica,sans-serif!important;font-weight:600}
+.progression-editor-modal .modal-actions{padding:9px 6px;gap:7px}
+
 /* Densité professionnelle : préserver la charte graphique et supprimer les espaces inutiles */
 .progression-editor-modal .modal-head{padding:14px 22px 12px;margin-bottom:0;border-bottom:1px solid #e3eaf4}
 .progression-editor-modal .modal-head h3{font-size:25px;line-height:1.2;margin:0;font-weight:750}
