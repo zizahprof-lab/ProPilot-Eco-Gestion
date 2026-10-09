@@ -401,59 +401,45 @@ function StudentOwnSummary({student,synthesis,positions,noteEnabled}) {
 function StudentSelfAssessment({student,klass,progression=[],selfEvals,onRefresh}) {
   const [competencies,setCompetencies]=useState([])
   const [progressionItem,setProgressionItem]=useState('')
-  const [competency,setCompetency]=useState('')
-  const [level,setLevel]=useState('A')
+  const [levels,setLevels]=useState({})
   const [success,setSuccess]=useState('')
   const [difficulty,setDifficulty]=useState('')
   const [message,setMessage]=useState('')
-
-  useEffect(()=>{supabase.from('pp_competencies').select('code,label,group_code,parent_code').eq('diploma_code',klass.diploma_code).order('sort_order').then(({data})=>setCompetencies(data||[]))},[klass.diploma_code])
-
+  const [busy,setBusy]=useState(false)
+  useEffect(()=>{let active=true;supabase.from('pp_competencies').select('code,label,group_code,parent_code').eq('diploma_code',klass.diploma_code).order('sort_order').then(({data,error})=>{if(active){if(error)setMessage(toastError(error));else setCompetencies(data||[])}});return()=>{active=false}},[klass.diploma_code])
   const contexts=progression.filter(p=>p.item_kind==='context')
   const selectedContext=contexts.find(p=>p.id===progressionItem)
-  const contextCodes=new Set((selectedContext?.competencies||[]).map(c=>c.code).filter(Boolean))
-  const availableCompetencies=progressionItem?competencies.filter(c=>contextCodes.has(c.code)||contextCodes.has(c.parent_code)):competencies
-
-  useEffect(()=>{if(competency&&!availableCompetencies.some(c=>c.code===competency))setCompetency('')},[progressionItem,competencies.length])
-
+  const contextCodes=new Set((selectedContext?.competencies||[]).map(c=>typeof c==='string'?c:(c.code||c.parent_code||c.comp_code)).filter(Boolean))
+  const sections=competencies.filter(c=>!c.parent_code&&(!progressionItem||contextCodes.has(c.code))).map(parent=>({parent,children:competencies.filter(c=>c.parent_code===parent.code)}))
+  useEffect(()=>{setLevels({});setSuccess('');setDifficulty('');setMessage('')},[progressionItem])
   async function save(e){
-    e.preventDefault()
-    const c=competencies.find(x=>x.code===competency)
-    if(!c){setMessage('Choisissez une compétence.');return}
-    const {data:{user}}=await supabase.auth.getUser()
-    const {error}=await supabase.from('pp_self_evaluations').insert({
-      student_id:student.id,
-      progression_item_id:progressionItem||null,
-      competency_code:c.code,
-      competency_label:c.label,
-      competency_group:c.group_code,
-      level,
-      success_note:success,
-      difficulty_note:difficulty,
-      created_by:user.id
-    })
-    setMessage(error?toastError(error):'Autoévaluation enregistrée.')
-    if(!error){setSuccess('');setDifficulty('');onRefresh()}
+    e.preventDefault();if(busy)return
+    const entries=Object.entries(levels).filter(([,v])=>['N','D','A','E','NE'].includes(v))
+    if(!entries.length){setMessage('Positionnez au moins une compétence observée.');return}
+    setBusy(true);setMessage('')
+    const {data:{user},error:authError}=await supabase.auth.getUser()
+    if(authError||!user){setBusy(false);setMessage('Connexion requise.');return}
+    const rows=entries.map(([code,level])=>{const c=competencies.find(x=>x.code===code);return {student_id:student.id,progression_item_id:progressionItem||null,competency_code:code,competency_label:c?.label||code,competency_group:c?.group_code||'',level,success_note:success||null,difficulty_note:difficulty||null,created_by:user.id}})
+    const {error}=await supabase.from('pp_self_evaluations').insert(rows)
+    setBusy(false)
+    if(error){setMessage(toastError(error));return}
+    setLevels({});setSuccess('');setDifficulty('');setMessage(entries.length+' autoévaluation(s) enregistrée(s).')
+    onRefresh()
   }
-
   if(!student.visibility?.self_assessment)return <div className="empty-state compact"><EyeOff/><h3>Autoévaluation désactivée</h3></div>
-  return <div className="evaluation-layout">
-    <form className="evaluation-card" onSubmit={save}>
-      <h3>Je m’autoévalue</h3>
-      <p>Vous pouvez rattacher votre autoévaluation à un contexte travaillé en classe.</p>
-      <label>Contexte / activité<select value={progressionItem} onChange={e=>setProgressionItem(e.target.value)}><option value="">Sans contexte précis</option>{contexts.map(c=><option value={c.id} key={c.id}>{c.period_id} — {c.context_name}</option>)}</select></label>
-      <label>Compétence<select value={competency} onChange={e=>setCompetency(e.target.value)} required><option value="">Choisir…</option>{availableCompetencies.map(c=><option value={c.code} key={c.code}>{c.code} — {c.label}</option>)}</select></label>
-      {progressionItem&&availableCompetencies.length===0&&<div className="form-message">Aucune compétence détaillée n’est publiée pour ce contexte. Choisissez « Sans contexte précis » pour accéder au référentiel complet.</div>}
-      <div className="level-grid">{LEVELS.filter(l=>l.code!=='NE').map(l=><button type="button" key={l.code} className={level===l.code?'level active':'level'} onClick={()=>setLevel(l.code)}><strong>{l.code}</strong><span>{l.label}</span></button>)}</div>
-      <label>Ce que j’ai réussi<textarea rows="3" value={success} onChange={e=>setSuccess(e.target.value)}/></label>
-      <label>Ce qui reste difficile<textarea rows="3" value={difficulty} onChange={e=>setDifficulty(e.target.value)}/></label>
-      {message&&<div className="form-message success">{message}</div>}
-      <button className="btn primary wide"><Save/>Enregistrer</button>
+  return <div className="pfmp-inline-shell student-self-pfmp-style">
+    <header><h2>Je m’autoévalue</h2><p>Je positionne les compétences que j’ai réellement travaillées. Les autres peuvent rester sans évaluation.</p></header>
+    <form onSubmit={save}>
+      <div className="pfmp-inline-fields"><label>Contexte / activité<select value={progressionItem} onChange={e=>setProgressionItem(e.target.value)}><option value="">Toutes les compétences</option>{contexts.map(c=><option value={c.id} key={c.id}>{c.period_id} — {c.context_name}</option>)}</select></label></div>
+      <div className="pfmp-inline-competencies">{sections.map(({parent,children})=><section className="pfmp-inline-group" key={parent.code}><h3>{parent.code} {parent.label}</h3><p>Je choisis mon niveau uniquement pour les compétences que j’ai travaillées.</p>{(children.length?children:[parent]).map(c=><div className="pfmp-inline-row" key={c.code}><span>{c.label}</span><div className="pfmp-inline-levels">{['N','D','A','E','NE'].map(l=><button type="button" key={l} className={'pfmp-inline-level pfmp-inline-'+l} aria-pressed={levels[c.code]===l} onClick={()=>setLevels(prev=>({...prev,[c.code]:prev[c.code]===l?undefined:l}))}>{l}</button>)}</div></div>)}</section>)}</div>
+      {!sections.length&&<div className="form-message">Aucune compétence disponible pour cette sélection.</div>}
+      <div className="pfmp-inline-notes"><label>Ce que j’ai réussi<textarea rows="3" value={success} onChange={e=>setSuccess(e.target.value)}/></label><label>Ce qui reste difficile<textarea rows="3" value={difficulty} onChange={e=>setDifficulty(e.target.value)}/></label></div>
+      {message&&<div className="form-message" role="status">{message}</div>}
+      <button className="btn primary" disabled={busy||!sections.length} type="submit"><Save/>{busy?'Enregistrement…':'Enregistrer mon autoévaluation'}</button>
     </form>
-    <div className="panel"><h3>Mes dernières autoévaluations</h3>{selfEvals.slice(0,8).map(e=>{const context=contexts.find(c=>c.id===e.progression_item_id);return <div className="recent-row" key={e.id}><div><strong>{e.competency_code} — {e.competency_label}</strong><span>{context?`${context.context_name} • `:''}{new Date(e.assessed_at).toLocaleDateString('fr-FR')}</span></div><LevelBadge level={e.level}/></div>})}{!selfEvals.length&&<div className="small-empty">Aucune autoévaluation enregistrée.</div>}</div>
+    <div className="panel" style={{marginTop:14}}><h3>Mes dernières autoévaluations</h3>{selfEvals.slice(0,8).map(e=>{const context=contexts.find(c=>c.id===e.progression_item_id);return <div className="recent-row" key={e.id}><div><strong>{e.competency_code} — {e.competency_label}</strong><span>{context?context.context_name+' • ':''}{new Date(e.assessed_at).toLocaleDateString('fr-FR')}</span></div><LevelBadge level={e.level}/></div>})}{!selfEvals.length&&<div className="small-empty">Aucune autoévaluation enregistrée.</div>}</div>
   </div>
 }
-
 
 function StudentProgression({items}) {
   return <div className="timeline">{items.map(i=><div className="timeline-item" key={i.id}><div className="dot"/><div><strong>{i.context_name}</strong><span>{i.period_id} • {i.learning_level} • {i.duration_hours||0} h</span><div className="row wrap mini-meta"><span className="badge info">{i.competencies?.length||0} compétence(s)</span><span className="badge muted">{i.econ_law_links?.length||0} lien(s) éco-droit</span></div></div></div>)}{!items.length&&<div className="small-empty">Aucune progression publiée.</div>}</div>
