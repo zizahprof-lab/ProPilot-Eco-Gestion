@@ -54,6 +54,7 @@ jobs:
           node scripts/check_ccf_dossier.mjs
           node scripts/check_ccf_alerts.mjs
           node scripts/check_ccf_score_parity.mjs
+          node scripts/check_pilot_curricula.mjs
 
       - name: Build pilot
         run: npm run build -- --base=/ProPilot-Eco-Gestion/
