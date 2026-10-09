@@ -255,6 +255,14 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-summary-side-by-side .personal-summary-alerts p:last-child{border-bottom:0}
       @media(max-width:950px){.personal-summary-side-by-side .personal-summary-alerts{min-height:auto}.personal-summary-side-by-side .personal-summary-alerts p{flex:initial}}
       @media(max-width:950px){.personal-summary-side-by-side{grid-template-columns:1fr}}
+      /* KPI compacts dans la zone libre sous les alertes : grille 2 x 2 */
+      .personal-summary-side-by-side>.personal-summary-right{display:flex;flex-direction:column;gap:12px;min-width:0;align-self:start}
+      .personal-summary-side-by-side .personal-summary-right>.personal-summary-alerts{margin:0;width:100%;box-sizing:border-box}
+      .personal-progression-summary .personal-summary-right>.personal-kpis-compact{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px!important;width:100%;max-width:100%;margin:0!important;padding:0!important;justify-content:stretch!important}
+      .personal-progression-summary .personal-summary-right>.personal-kpis-compact>.personal-kpi{width:100%!important;min-width:0!important;min-height:65px!important;box-sizing:border-box;flex:initial!important}
+      .personal-summary-right .personal-kpis-compact .kpi-copy>span{white-space:normal!important}
+      @media(max-width:950px){.personal-summary-side-by-side>.personal-summary-right{width:100%}}
+      @media(max-width:440px){.personal-progression-summary .personal-summary-right>.personal-kpis-compact{grid-template-columns:1fr}}
       /* Indicateurs synthétiques : quatre pastilles compactes sans cartes géantes */
       .personal-progression-summary .personal-kpis{display:flex!important;flex-wrap:wrap;gap:8px!important;margin:10px 0 12px!important;align-items:stretch}
       .personal-progression-summary .personal-kpi{display:flex!important;flex:1 1 185px;min-width:0;align-items:center;justify-content:space-between;gap:12px;padding:9px 13px!important;min-height:48px!important;border-radius:10px!important;box-shadow:none!important}
@@ -421,19 +429,22 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
           const rows=[[missingProblem===0,missingProblem===0?'Toutes les problématiques sont renseignées':missingProblem+' contexte(s) sans problématique'],[missingActivities===0,missingActivities===0?'Tous les contextes comportent des activités / productions élèves':missingActivities+' contexte(s) sans activités / productions élèves'],[missingSkills===0,missingSkills===0?'Tous les contextes ont au moins une compétence':missingSkills+' contexte(s) sans compétence'],[missingDuration===0,missingDuration===0?'Toutes les durées prévues sont renseignées':missingDuration+' durée(s) prévue(s) non renseignée(s)'],[missingOfficial===0,missingOfficial===0?'Toutes les compétences du référentiel sont programmées':missingOfficial+' compétence(s) du référentiel non programmée(s)'],[true,shared+' contexte(s) partagé(s) entre enseignants']];
           return <div style={{marginTop:12,background:'#eef5ff',border:'1px solid #cfe0ff',borderLeft:'4px solid #5b9dff',borderRadius:12,padding:'16px 14px'}}>{rows.map(([ok,label],index)=><div key={index} style={{padding:'8px 0',borderBottom:index===rows.length-1?'none':'1px dotted #bdd8ff',color:ok?'#06713c':'#b45309'}}>{ok?'✓':'⚠'} {label}</div>)}</div>})()}
       </section>
+      <div className="personal-summary-right">
       <aside className="personal-analytics-alerts personal-summary-alerts" aria-label="Alertes de pilotage">
         <h3>Alertes de pilotage</h3>
         {(()=>{const rank={D:0,E:1,A:2,M:3};const stats=referenceCompetencies.map(c=>{const uses=items.filter(i=>competencyCodes(i.competencies).includes(c.code)&&(!teacherFilter||i.teacher_label===teacherFilter)&&(!groupFilter||groupKey(i)===groupFilter)&&(!levelFilter||i.learning_level===levelFilter));return {...c,uses,max:uses.reduce((m,i)=>rank[i.learning_level]>rank[m]?i.learning_level:m,'D'),engaged:uses.some(i=>['En cours','Terminé'].includes(i.status))}}).filter(c=>c.uses.length);return [{n:stats.filter(c=>!c.engaged).length,label:'programmée(s) mais pas encore engagée(s)',hint:'uniquement dans des contextes « Prévu » ou « À ajuster »'},{n:stats.filter(c=>c.uses.length===1).length,label:'mobilisée(s) une seule fois',hint:'prévoir un réinvestissement pour renforcer la spirale'},{n:stats.filter(c=>c.max==='D').length,label:'encore au niveau D',hint:'programmer au moins une expérimentation ultérieure'}].map(a=><p key={a.label}><b>{a.n} {a.label}</b> — {a.hint}.</p>)})()}
       </aside>
-      </div>
-    <div className="personal-legend">{referenceGroups.map(g=>{const style=GROUP_STYLE[g.code]||{personal:g.code,color:'#94A3B8'};return <span key={g.code} style={{'--c':style.color}}><b>{style.personal}</b> · {g.label}</span>})}</div>
-
     <div className="personal-kpis personal-kpis-compact" aria-label="Indicateurs de la progression">
       <div className="personal-kpi kpi-blue"><span className="kpi-icon" aria-hidden="true">▣</span><div className="kpi-copy"><span>Compétences programmées</span><strong>{visibleCovered.size} / {totalTop}</strong></div></div>
       <div className="personal-kpi kpi-orange"><span className="kpi-icon" aria-hidden="true">▤</span><div className="kpi-copy"><span>Contextes / activités</span><strong>{visible.length}</strong></div></div>
       <div className="personal-kpi kpi-green"><span className="kpi-icon" aria-hidden="true">✓</span><div className="kpi-copy"><span>Éléments terminés</span><strong>{visible.filter(i=>i.status==='Terminé').length}</strong></div></div>
       <div className="personal-kpi kpi-red"><span className="kpi-icon" aria-hidden="true">⚠</span><div className="kpi-copy"><span>À ajuster</span><strong>{visible.filter(i=>i.status==='À ajuster').length}</strong></div></div>
     </div>
+      </div>
+      </div>
+    <div className="personal-legend">{referenceGroups.map(g=>{const style=GROUP_STYLE[g.code]||{personal:g.code,color:'#94A3B8'};return <span key={g.code} style={{'--c':style.color}}><b>{style.personal}</b> · {g.label}</span>})}</div>
+
+
 
     <section className="personal-v14-dashboard" aria-label="Tableau de bord de progression V14.1">
       <div className="personal-v14-dashboard-title"><strong>Tableau de bord pédagogique</strong><span>Programmation et couverture des compétences</span></div>
