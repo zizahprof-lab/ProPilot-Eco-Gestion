@@ -302,3 +302,18 @@
 .pfmp-level-N{background:#ff343b;color:white}.pfmp-level-D{background:#ffdf19;color:#262626}.pfmp-level-A{background:#00bc58;color:white}.pfmp-level-E{background:#4e842d;color:white}.pfmp-level-NE{background:#eff3f9;color:#263959}
 .pfmp-level[aria-pressed="true"]{box-shadow:inset 0 0 0 3px #14213d,0 0 0 2px #fff}
 @media(max-width:700px){.pfmp-gc-row{grid-template-columns:1fr}.pfmp-gc-levels{justify-content:flex-start}}
+
+/* V14.1 - droits et visibilité de l'accès élève */
+.access-v14-selectors{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.access-v14-selectors label{display:grid;gap:5px;color:#364b66;font-size:13px}
+.access-v14-selectors select,.access-v14-selectors input{width:100%;padding:11px 12px;border:1px solid #cddbec;border-radius:10px;min-width:0;background:#fff}
+.access-v14-selectors input:disabled{background:#f6f9fd}
+.access-v14-detail{background:#fff;border:1px solid #dce6f3;border-radius:15px;padding:15px}
+.access-v14-detail h3{margin:0 0 9px}
+.access-v14-detail h4{margin:12px 0 9px}
+.access-v14-notice{border:1px solid #d2e2f9;border-radius:10px;padding:10px 12px;background:#f4f8ff;font-size:13px;color:#344967;margin:10px 0}
+.access-v14-notice p{margin:5px 0 0}
+.access-v14-toggle{display:flex;gap:10px;align-items:center;font-weight:700;padding:10px 0}
+.access-v14-modules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:14px}
+.access-v14-modules label{background:#f8fbff;border:1px solid #dce6f3;border-radius:10px;padding:10px;display:flex;align-items:center;gap:8px;font-size:13px}
+@media(max-width:650px){.access-v14-selectors,.access-v14-modules{grid-template-columns:1fr}}
