@@ -244,6 +244,11 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-v14-levels{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.personal-v14-levels span{padding:9px 12px;border-radius:10px;background:#f1f5f9;font-size:13px}
       .personal-summary-side-by-side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:stretch;margin:16px 0}
       .personal-summary-side-by-side>.personal-summary-quality,.personal-summary-side-by-side>.personal-summary-alerts{min-width:0;margin:0}
+      .personal-summary-side-by-side>.personal-summary-quality,.personal-summary-side-by-side>.personal-summary-alerts{height:100%;box-sizing:border-box;border-radius:18px}
+      .personal-summary-side-by-side>.personal-summary-quality{display:flex;flex-direction:column;justify-content:flex-start}
+      .personal-summary-side-by-side>.personal-summary-quality>div:last-child{flex:1}
+      .personal-summary-side-by-side>.personal-summary-alerts{height:100%;border-width:1px 1px 1px 4px}
+
       .personal-summary-side-by-side .personal-summary-alerts{align-self:stretch;display:flex;flex-direction:column;justify-content:flex-start;min-height:100%;padding:16px 20px}
       .personal-summary-side-by-side .personal-summary-alerts h3{margin:0 0 10px;font-size:19px}
       .personal-summary-side-by-side .personal-summary-alerts p{flex:initial;display:block;margin:0;padding:13px 0;line-height:1.5}
