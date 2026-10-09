@@ -184,7 +184,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-period-head>div{text-align:center;width:100%}
       .personal-period-head h4{font-weight:900;letter-spacing:.01em}
       .personal-period-add{display:grid;place-items:center;position:relative;margin:6px auto 0;width:34px;height:34px;min-width:34px;min-height:34px;border-radius:50%;background:#fff;color:var(--period-accent,#2563eb);border:0;box-shadow:0 2px 8px #0f172a1c;cursor:pointer}.personal-period-add:hover{transform:scale(1.08);box-shadow:0 3px 12px #0f172a30}.personal-period-theme-p1,.personal-period-theme-p5{--period-accent:#2f80ed}.personal-period-theme-p2,.personal-period-theme-p6{--period-accent:#18a96b}.personal-period-theme-p3,.personal-period-theme-p7{--period-accent:#ef4444}.personal-period-theme-p4{--period-accent:#7c3aed}
-      .personal-card-competencies{display:flex;flex-direction:column;gap:3px;margin:7px 0;font-size:12px;line-height:1.3;color:#475569}.personal-card-competency{overflow-wrap:anywhere}.personal-card-competency span{font-weight:700;color:#2563eb}
+      .personal-card-competencies{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}.personal-card-group-tag{font-size:11px;font-weight:800;border-radius:14px;background:#eef2ff;color:#1e40af;padding:3px 7px}
       .personal-period-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:#64748b #e2e8f0;scrollbar-width:thin}
       .personal-period-theme-p1 .personal-period-head,.personal-period-theme-p5 .personal-period-head{background:linear-gradient(135deg,#2f80ed,#56a8ff);color:#fff}
       .personal-period-theme-p2 .personal-period-head,.personal-period-theme-p6 .personal-period-head{background:linear-gradient(135deg,#18a96b,#58cf8b);color:#fff}
@@ -412,7 +412,7 @@ function ProgressionCard({item,files,readOnly,onEdit,onDelete,onDuplicate,onDown
   return <article className="personal-context-card" style={{'--gc':group.color}} onClick={()=>!readOnly&&onEdit()}>
     {!readOnly&&<div className="personal-card-order"><button disabled={!canMoveUp} title="Monter" onClick={e=>{e.stopPropagation();onMove(item,-1)}}>↑</button><button disabled={!canMoveDown} title="Descendre" onClick={e=>{e.stopPropagation();onMove(item,1)}}>↓</button></div>}
     <h4>{item.context_name}</h4>
-    <div className="personal-card-competencies">{(item.competencies||[]).length?(item.competencies||[]).map((c,i)=><div key={i} className="personal-card-competency">{typeof c==="string"?c:(c.comp||c.label||c.code||"Compétence")}{(c&&typeof c==="object"&&(c.level||c.learning_level))&&<span> · {c.level||c.learning_level}</span>}</div>):<p>Compétence à préciser</p>}</div>
+    <div className="personal-card-competencies">{[...new Set((item.competencies||[]).map(c=>{const raw=typeof c==='object'?(c.group||c.group_code||''):'';const key=PERSONAL_TO_GROUP[raw]||raw;return GROUP_STYLE[key]?.personal||(typeof c==='string'?(c.match(/GC(?:1|2|3|4A|4B)/i)||[])[0]:null)}).filter(Boolean))].map(code=><span key={code} className="personal-card-group-tag">{code}</span>)}</div>
     {item.problematic&&<p className="personal-card-problem">{item.problematic}</p>}
     <div className="personal-card-badges"><span>{group.personal}</span><span className={`level-${item.learning_level||'D'}`}>{item.learning_level||'D'}</span><span>{item.status||'Prévu'}</span>{item.item_kind==='event'&&<span>{item.activity_type||'Évènement'}</span>}</div>
     <p><b>{item.teacher_label||'Enseignant à préciser'}</b> · {Number(item.duration_hours||0).toFixed(1)} h</p>
