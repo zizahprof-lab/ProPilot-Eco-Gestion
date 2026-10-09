@@ -1,72 +1,49 @@
-# Pilote ProPilot — 10 formateurs académiques
+# ProPilot 2026 — Pilote de 10 enseignants
+Dernière revue : 10 octobre 2026. Statut : **prêt pour recette encadrée, pas encore GO général**.
 
-## Objectif
-Valider en situation réelle le parcours professeur avant ouverture plus large. Le pilote porte d’abord sur l’interface professeur et sur la robustesse multi-utilisateur.
+## Objectif et confidentialité
+Valider le service avec dix PLP volontaires avant une ouverture plus large. Employer des élèves **fictifs** pour les premiers essais ; ne partager ni codes élèves ni données personnelles dans les captures, tickets ou échanges collectifs. Ne pas utiliser de données sensibles réelles tant que la recette de sécurité n'est pas signée.
 
-## Périmètre fonctionnel à tester
-- inscription avec une adresse `@ac-aix-marseille.fr` ;
-- attente puis approbation par l’administrateur ;
-- création d’un établissement et ajout facultatif du logo ;
-- création d’une ou plusieurs classes ;
-- choix du diplôme disponible dans le pilote ;
-- périodes P1 à P7 et dates PFMP intégrées à la progression ;
-- progression pédagogique, contextes et pièces jointes ;
-- import d’élèves par CSV ;
-- évaluation rapide / tablette ;
-- synthèse des compétences et positionnement ;
-- PFMP ;
-- CCF, pièces attendues, note proposée puis note validée ;
-- documents ;
-- collaboration seul / binôme / trinôme ;
-- Bugs / RETEX.
+## Répartition des dix scénarios (un référent par scénario)
+| Testeur | Mission principale | Validation attendue |
+|---|---|---|
+| T01 | Inscription professeur, approbation, première connexion | Parcours complet sans blocage |
+| T02 | Création 2MRC, progression, évaluation C1/C2/C3 | Aucun CCF ; AP exclues **uniquement** de l'évaluation |
+| T03 | MCVA, contexte et positionnements | Correspondance contexte/compétences |
+| T04 | MCVB, synthèse, saisies multiples | Résultats cohérents et persistants |
+| T05 | Bac Pro Métiers de l'accueil | Débrief et grille 26 critères ; dépôts E31/E32 seulement |
+| T06 | CAP EPC | 101 critères ; EP1/EP2/EP3 ; **pas d'économie-droit** |
+| T07 | AGOrA | Trois groupes, progression, CCF selon diplôme |
+| T08 | Binôme/trinôme, rôles propriétaire/éditeur/lecteur | Permissions et collaboration cohérentes |
+| T09 | Élève : connexion, renouvellement du code, autoévaluation, visibilité | Ancien code invalidé ; aucune donnée d'autrui |
+| T10 | Pièces jointes, PFMP, documents, impression, Bugs/RETEX | Documents accessibles selon droits, rendu correct |
 
-## Organisation des 10 testeurs
-Pour éviter dix tests identiques, répartir les usages :
-1. professeur seul, une classe ;
-2. professeur seul, plusieurs classes ;
-3. propriétaire d’un binôme ;
-4. éditeur d’un binôme ;
-5. propriétaire d’un trinôme ;
-6. co-propriétaire d’un trinôme ;
-7. lecture seule ;
-8. import CSV + évaluation rapide ;
-9. PFMP + progression ;
-10. CCF + documents + RETEX.
+## Recette par parcours
+Chaque testeur passe les étapes suivantes : (1) créer/ouvrir une classe ; (2) créer un contexte et associer des compétences ; (3) évaluer un élève sur deux compétences, enregistrer une observation, rouvrir la page ; (4) vérifier les valeurs enregistrées ; (5) effectuer un débrief PFMP ; (6) tester synthèse et proposition de maîtrise ; (7) activer l'accès d'un élève fictif, lui remettre un code et vérifier la connexion ; (8) tester autoévaluation et visibilité ; (9) tester CCF seulement si le diplôme en prévoit ; (10) imprimer/exporter et soumettre le RETEX.
 
-Les collègues peuvent évidemment tester au-delà de leur scénario principal.
+## Cas de sécurité non négociables
+- Deux professeurs distincts, dans des classes sans relation, ne peuvent lire ni modifier les élèves de l'autre.
+- Deux élèves distincts ne peuvent accéder aux données ni documents de l'autre.
+- Un élève ne peut modifier une évaluation professeur, une synthèse validée ou une note CCF.
+- Un lecteur ne peut pas saisir des évaluations ni changer des accès.
+- Les liens documentaires protégés ne deviennent jamais publics ou permanents.
+- Renouveler un code élève rend l'ancien code inutilisable ; pas de récupération du code précédent.
 
-## Parcours conseillé
-1. Créer son compte.
-2. Attendre l’approbation administrateur.
-3. Compléter le premier assistant de configuration.
-4. Créer au moins une classe.
-5. Ajouter ou importer quelques élèves fictifs au premier essai.
-6. Créer un contexte dans la progression.
-7. Évaluer quelques élèves.
-8. Vérifier la synthèse.
-9. Tester une PFMP.
-10. Tester le CCF et un dépôt de document.
-11. Envoyer au moins un retour via **Bugs / RETEX**.
+## Fiche de remontée pour chaque incident
+Identifiant : PILOT-001… ; date ; testeur (T01–T10) ; diplôme ; module ; résultat attendu ; résultat obtenu ; étapes de reproduction ; navigateur ; capture **anonymisée** ; impact ; sévérité : **P0** fuite de données / accès non autorisé, **P1** blocage du parcours essentiel ou perte de données, **P2** défaut gênant avec contournement, **P3** présentation.
 
-## Ce que nous voulons mesurer
-- compréhension immédiate de l’interface ;
-- facilité de création de la première classe ;
-- cohérence avec les pratiques d’un PLP ;
-- pertinence du référentiel et des compétences proposées ;
-- rapidité d’évaluation ;
-- lisibilité de la progression ;
-- utilité de PFMP / CCF / synthèse ;
-- bugs, lenteurs ou blocages ;
-- fonctions manquantes ;
-- fonctions perçues comme inutiles ou trop complexes.
+## Critères de passage GO/NO-GO
+**NO-GO immédiat** si anomalie P0/P1 ouverte ou si les tests d'isolement professeur/élève ne sont pas signés. **GO encadré** lorsque les dix comptes enseignants ont été testés, les six parcours diplôme ont été parcourus, les scénarios de `docs/PILOT_SECURITY_TEST_MATRIX.md` sont validés, CI et déploiement sont verts, aucune anomalie P0/P1 non résolue, et une personne responsable du support / retour arrière est désignée. Le simple succès des tests statiques GitHub ne vaut pas test de sécurité réel.
 
-## Consigne données
-Pour le premier essai, utiliser de préférence des élèves fictifs. Ne pas saisir de données sensibles inutiles pendant la phase de validation.
+## Exploitation
+Période conseillée : semaine 1 prise en main et comptes fictifs ; semaine 2 saisies, scénarios croisés, correction et décision GO. Centraliser les remontées dans **Bugs / RETEX**, faire un point quotidien de 15 min, geler les nouveautés pendant la recette, conserver une version précédente prête au retour arrière.
 
-## Critère de GO
-Le pilote est considéré satisfaisant lorsque :
-- les 10 professeurs peuvent créer et utiliser leur compte ;
-- aucun blocage critique d’authentification ou de droits n’est observé ;
-- les parcours progression, évaluation, PFMP, CCF et documents sont utilisables ;
-- les RETEX critiques sont traités ;
-- aucune régression de la version professeur de référence n’est constatée.
+## Notice enseignants et élèves
+- Enseignant : crée son compte, attend la validation de l'administrateur, crée sa classe et sa progression.
+- Élève : **ne crée pas son propre compte** ; le professeur renseigne l'e-mail, active l'accès, enregistre les droits, génère le code. L'élève se connecte avec son e-mail et ce code comme mot de passe.
+- Contrôler les autorisations de visibilité avant chaque remise d'identifiants.
+- Les suggestions IA restent soumises à vérification par le professeur.
+- Le module économie-droit n'est pas disponible pour le CAP EPC ; le CCF n'est pas attendu en 2MRC.
+
+## Point d'attention Supabase
+Avis de sécurité non résolu : protection contre les mots de passe compromis désactivée. Document officiel : https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection. Activation par l'administrateur du projet et contrôle des éventuelles exigences de mots de passe avant GO.
