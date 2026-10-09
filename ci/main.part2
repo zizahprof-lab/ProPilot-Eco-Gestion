@@ -103,7 +103,7 @@ function StudentAccessTab({klass,readOnly=false}){
     setIssued(null);setMessage('');setGenerating(true)
     const {data,error}=await supabase.functions.invoke('generate-student-code',{body:{student_id:selected.id}})
     setGenerating(false)
-    if(error||!data?.code){setMessage(data?.error||error?.message||'Génération impossible.');return}
+    if(error||!data?.code){let detail=data?.error||'';if(!detail&&error?.context){try{const body=await error.context.json();detail=body?.error||body?.message||''}catch(_){}}setMessage(detail||error?.message||'Génération impossible.');return}
     setIssued({email:data.email,code:data.code})
     setMessage('Code généré. Remettez-le directement à l’élève et conservez-le en lieu sûr.')
     await load()
