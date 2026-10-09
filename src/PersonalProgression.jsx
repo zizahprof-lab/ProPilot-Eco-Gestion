@@ -244,9 +244,9 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-v14-levels{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.personal-v14-levels span{padding:9px 12px;border-radius:10px;background:#f1f5f9;font-size:13px}
       .personal-summary-side-by-side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:stretch;margin:16px 0}
       .personal-summary-side-by-side>.personal-summary-quality,.personal-summary-side-by-side>.personal-summary-alerts{min-width:0;margin:0}
-      .personal-summary-side-by-side .personal-summary-alerts{align-self:stretch;display:flex;flex-direction:column;justify-content:space-evenly;min-height:100%;padding:20px 22px}
-      .personal-summary-side-by-side .personal-summary-alerts h3{margin:0 0 8px}
-      .personal-summary-side-by-side .personal-summary-alerts p{flex:1;display:flex;align-items:center;margin:0;padding:12px 0;line-height:1.6}
+      .personal-summary-side-by-side .personal-summary-alerts{align-self:stretch;display:flex;flex-direction:column;justify-content:flex-start;min-height:100%;padding:16px 20px}
+      .personal-summary-side-by-side .personal-summary-alerts h3{margin:0 0 10px;font-size:19px}
+      .personal-summary-side-by-side .personal-summary-alerts p{flex:initial;display:block;margin:0;padding:13px 0;line-height:1.5}
       .personal-summary-side-by-side .personal-summary-alerts p:last-child{border-bottom:0}
       @media(max-width:950px){.personal-summary-side-by-side .personal-summary-alerts{min-height:auto}.personal-summary-side-by-side .personal-summary-alerts p{flex:initial}}
       @media(max-width:950px){.personal-summary-side-by-side{grid-template-columns:1fr}}
@@ -381,13 +381,13 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
 
     <div className="personal-progression-summary" aria-label="Bilan pédagogique après la progression">
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',marginBottom:10}}>
-        <h3 style={{margin:0}}>Tableau de bord de la progression</h3>
+        <div><h3 style={{margin:'0 0 4px',fontSize:24}}>Vue annuelle de la progression</h3><p style={{margin:0,color:'#64748b'}}>Lecture chronologique des contextes et de la montée en compétence sur l'année</p></div>
         <button type="button" onClick={()=>{setPrintCycle(cycleView==='cycle'?'premiere':cycleView);setPrintOpen(true)}} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',gap:9,background:'#075cf7',color:'#fff',border:'2px solid #075cf7',borderRadius:11,padding:'12px 19px',fontSize:15,fontWeight:800,cursor:'pointer',boxShadow:'0 4px 12px #075cf733'}}><span aria-hidden="true">🖨</span> Imprimer la progression</button>
       </div>
       <div className="personal-summary-side-by-side">
       <section className="personal-summary-quality" style={{background:'#fff',border:'1px solid #dbe4ef',borderRadius:18,padding:20,margin:0}} aria-label="Vue annuelle de la progression">
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:16,flexWrap:'wrap'}}>
-          <div><h3 style={{margin:'0 0 5px',fontSize:23}}>Vue annuelle de la progression</h3><p style={{margin:0,color:'#64748b'}}>Lecture chronologique des contextes et de la montée en compétence sur l'année</p></div>
+          <h3 style={{margin:0,fontSize:19}}>Contrôle qualité de la progression</h3>
           <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
             <select aria-label="Filtrer par enseignant" value={teacherFilter} onChange={e=>setTeacherFilter(e.target.value)} style={{minWidth:220,padding:12,border:'1px solid #d2deec',borderRadius:9,background:'white'}}><option value="">Tous les enseignants</option>{teacherOptions.map(t=><option key={t} value={t}>{t}</option>)}</select>
             <button type="button" onClick={load} style={{padding:'12px 16px',border:'1px solid #d2deec',borderRadius:9,background:'white',cursor:'pointer'}}>⟳ Actualiser</button>
@@ -402,7 +402,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
           const missingOfficial=referenceCompetencies.filter(c=>!programmed.has(c.code)).length;
           const shared=scope.filter(i=>String(i.teacher_label||'').includes('&')||String(i.teacher_label||'').includes(' et ')).length;
           const rows=[[missingProblem===0,missingProblem===0?'Toutes les problématiques sont renseignées':missingProblem+' contexte(s) sans problématique'],[missingActivities===0,missingActivities===0?'Tous les contextes comportent des activités / productions élèves':missingActivities+' contexte(s) sans activités / productions élèves'],[missingSkills===0,missingSkills===0?'Tous les contextes ont au moins une compétence':missingSkills+' contexte(s) sans compétence'],[missingDuration===0,missingDuration===0?'Toutes les durées prévues sont renseignées':missingDuration+' durée(s) prévue(s) non renseignée(s)'],[missingOfficial===0,missingOfficial===0?'Toutes les compétences du référentiel sont programmées':missingOfficial+' compétence(s) du référentiel non programmée(s)'],[true,shared+' contexte(s) partagé(s) entre enseignants']];
-          return <div style={{marginTop:16,background:'#eef5ff',border:'1px solid #cfe0ff',borderLeft:'4px solid #5b9dff',borderRadius:12,padding:'16px 14px'}}><strong style={{fontSize:16}}>Contrôle qualité de la progression</strong>{rows.map(([ok,label],index)=><div key={index} style={{padding:'8px 0',borderBottom:index===rows.length-1?'none':'1px dotted #bdd8ff',color:ok?'#06713c':'#b45309'}}>{ok?'✓':'⚠'} {label}</div>)}</div>})()}
+          return <div style={{marginTop:12,background:'#eef5ff',border:'1px solid #cfe0ff',borderLeft:'4px solid #5b9dff',borderRadius:12,padding:'16px 14px'}}>{rows.map(([ok,label],index)=><div key={index} style={{padding:'8px 0',borderBottom:index===rows.length-1?'none':'1px dotted #bdd8ff',color:ok?'#06713c':'#b45309'}}>{ok?'✓':'⚠'} {label}</div>)}</div>})()}
       </section>
       <aside className="personal-analytics-alerts personal-summary-alerts" aria-label="Alertes de pilotage">
         <h3>Alertes de pilotage</h3>
