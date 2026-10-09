@@ -63,13 +63,49 @@ function SynthesisCompetenciesTab({klass,readOnly=false}){
 
 function StudentAccessTab({klass,readOnly=false}){
   const [students,setStudents]=useState([])
-  const [selected,setSelected]=useState(null)
-  const [q,setQ]=useState('')
-  async function load(){const {data}=await supabase.from('pp_students').select('*').eq('class_id',klass.id).order('last_name');setStudents(data||[])}
+  const [selectedId,setSelectedId]=useState('')
+  const [form,setForm]=useState(null)
+  const [busy,setBusy]=useState(false)
+  const [message,setMessage]=useState('')
+  async function load(){
+    const {data,error}=await supabase.from('pp_students').select('*').eq('class_id',klass.id).order('last_name')
+    if(error){setMessage(toastError(error));return}
+    setStudents(data||[])
+    setSelectedId(prev=>(data||[]).some(x=>x.id===prev)?prev:(data?.[0]?.id||''))
+  }
   useEffect(()=>{load()},[klass.id])
-  async function toggle(student){if(readOnly)return;await supabase.from('pp_students').update({access_enabled:!student.access_enabled}).eq('id',student.id);load()}
-  const filtered=students.filter(s=>`${s.last_name} ${s.first_name} ${s.email||''}`.toLowerCase().includes(q.toLowerCase()))
-  return <div className="panel reference-access-panel"><div className="panel-head"><div><h3>Accès élève</h3><p>Activez l’espace élève et choisissez précisément ce que chacun peut consulter.</p></div><div className="search"><Search/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher un élève"/></div></div><div className="reference-access-grid">{filtered.map(s=><div className="reference-access-card" key={s.id}><div><strong>{s.last_name} {s.first_name}</strong><span>{s.email||'Aucune adresse e-mail'} {s.group_name?`• ${s.group_name}`:''}</span></div><div className="reference-access-actions"><button className={s.access_enabled?'access-toggle on':'access-toggle'} disabled={readOnly} onClick={()=>toggle(s)}>{s.access_enabled?<Eye/>:<EyeOff/>}{s.access_enabled?'Accès activé':'Accès désactivé'}</button><button className="btn small" onClick={()=>setSelected(s)}>{readOnly?'Voir':'Configurer'}</button></div><div className="access-visibility-chips">{[['progression','Progression'],['self_assessment','Autoévaluation'],['ccf','CCF'],['pfmp','PFMP'],['reports','Rapports'],['synthesis','Synthèse'],['teacher_positions','Positionnement'],['teacher_comments','Commentaires']].filter(([k])=>s.visibility?.[k]).map(([k,l])=><span key={k}>{l}</span>)}</div></div>)}{!filtered.length&&<div className="small-empty">Aucun élève.</div>}</div>{selected&&<EditStudentModal student={selected} readOnly={readOnly} onClose={()=>setSelected(null)} onSaved={()=>{setSelected(null);load()}}/>}</div>
+  const selected=students.find(s=>s.id===selectedId)
+  useEffect(()=>{setForm(selected?{access_enabled:!!selected.access_enabled,visibility:{...(selected.visibility||{})}}:null);setMessage('')},[selectedId,selected?.updated_at,selected?.access_enabled])
+  function setVisibility(key){
+    if(readOnly||!form)return
+    const v={...form.visibility,[key]:!form.visibility[key]}
+    if(key==='teacher_comments'&&v.teacher_comments)v.teacher_positions=true
+    if(key==='teacher_positions'&&!v.teacher_positions)v.teacher_comments=false
+    setForm({...form,visibility:v})
+  }
+  async function save(){
+    if(!selected||!form||readOnly||busy)return
+    setBusy(true);setMessage('')
+    const {error}=await supabase.from('pp_students').update({access_enabled:form.access_enabled,visibility:form.visibility}).eq('id',selected.id).eq('class_id',klass.id)
+    setBusy(false)
+    if(error){setMessage(toastError(error));return}
+    setMessage('Droits de consultation enregistrés.')
+    await load()
+  }
+  const modules=[['self_assessment','Auto-évaluation'],['teacher_positions','Positionnements professeur'],['teacher_comments','Commentaires professeur'],['pfmp','Débriefs PFMP'],['synthesis','Synthèse de fin de cycle'],['ccf','Dépôts et suivi CCF'],['progression','Progression'],['reports','Rapports']]
+  return <section className="panel reference-access-panel" style={{background:'#fff',borderRadius:18,padding:18}}>
+    <div className="panel-head"><div><h2 style={{margin:0}}>Accès élève & visibilité</h2><p>Le professeur choisit ce que l’élève peut consulter. L’auto-évaluation peut rester accessible sans publier les commentaires ou les positionnements professeur.</p></div></div>
+    <div className="access-v14-selectors"><label>Classe<input value={klass.name+' · '+klass.school_year} disabled/></label><label>Élève<select value={selectedId} onChange={e=>setSelectedId(e.target.value)}>{students.map(s=><option key={s.id} value={s.id}>{s.last_name} {s.first_name}</option>)}</select></label></div>
+    {selected&&form?<div className="access-v14-detail"><h3>{selected.last_name} {selected.first_name}</h3>
+      <div className="access-v14-notice"><strong>Identifiant élève :</strong> {selected.email||'Adresse e-mail à renseigner dans la fiche élève'}<p>L’élève se connecte avec ses identifiants personnels. Ses droits sont contrôlés côté serveur.</p></div>
+      <label className="access-v14-toggle"><input type="checkbox" disabled={readOnly} checked={form.access_enabled} onChange={e=>setForm({...form,access_enabled:e.target.checked})}/> Autoriser l’accès élève</label>
+      <h4>Ce que l’élève peut voir</h4>
+      <div className="access-v14-modules">{modules.map(([key,label])=><label key={key}><input type="checkbox" disabled={readOnly} checked={!!form.visibility[key]} onChange={()=>setVisibility(key)}/>{label}</label>)}</div>
+      <div className="row wrap"><button className="btn primary" disabled={readOnly||busy} onClick={save}><Save size={16}/>{busy?'Enregistrement…':'Enregistrer les droits'}</button></div>
+      <div className="access-v14-notice">La génération ou le renouvellement d’un code personnel nécessite un service d’authentification sécurisé. Aucun code ne sera affiché ou créé tant que ce service n’est pas opérationnel.</div>
+    </div>:<div className="small-empty">Aucun élève dans cette classe.</div>}
+    {message&&<div className="form-message" role="status">{message}</div>}
+  </section>
 }
 
 function StudentsTab({ klass, readOnly=false, isPrimaryOwner=false, onClassDeleted }) {
