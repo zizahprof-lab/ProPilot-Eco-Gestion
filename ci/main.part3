@@ -118,7 +118,7 @@ function AddProgressionModal({klass,onClose,onCreated,initial=null}) {
 }
 
 function QuickEvaluationTab({ klass, readOnly=false }) {
-  const [mode,setMode]=useState('individual')
+  const [mode,setMode]=useState('matrix')
   const [students,setStudents]=useState([]),[competencies,setCompetencies]=useState([]),[progression,setProgression]=useState([]),[progressionItem,setProgressionItem]=useState(''),[student,setStudent]=useState(''),[competency,setCompetency]=useState(''),[level,setLevel]=useState('A'),[observation,setObservation]=useState(''),[message,setMessage]=useState(''),[recent,setRecent]=useState([])
   const [bulkLevels,setBulkLevels]=useState({}),[bulkBusy,setBulkBusy]=useState(false),[bulkGroup,setBulkGroup]=useState('')
   const [studentGroup,setStudentGroup]=useState('')
@@ -221,10 +221,11 @@ function QuickEvaluationTab({ klass, readOnly=false }) {
     if(error)setMessage(toastError(error));else{setMessage(`${rows.length} positionnement(s) enregistré(s).`);setBulkLevels({});await Promise.all([loadRecent(),loadSessionEvaluated()])}
     setBulkBusy(false)
   }
+  if(mode==='matrix')return <EvaluationMatrix klass={klass} readOnly={readOnly} onClassic={()=>setMode('individual')}/>
   if(readOnly) return <div className="empty-state compact"><Eye/><h3>Classe en lecture seule</h3><p>Vous pouvez consulter les données, mais seul un propriétaire ou un éditeur peut saisir des évaluations.</p></div>
 
   return <div className="tablet-evaluation-workspace">
-    <div className="segmented mode-switch"><button className={mode==='individual'?'active':''} onClick={()=>setMode('individual')}>Évaluation individuelle</button><button className={mode==='class'?'active':''} onClick={()=>setMode('class')}>Mode classe</button></div>
+    <div className="segmented mode-switch"><button onClick={()=>setMode('matrix')}>Grille V14.1</button><button className={mode==='individual'?'active':''} onClick={()=>setMode('individual')}>Évaluation individuelle</button><button className={mode==='class'?'active':''} onClick={()=>setMode('class')}>Mode classe</button></div>
     {mode==='individual'?<div className="evaluation-layout tablet-evaluation-layout"><form className="evaluation-card tablet-evaluation-card" onSubmit={save}>
       <div className="tablet-eval-head"><div><span className="eyebrow">Saisie tablette</span><h3>Évaluation rapide</h3><p>Contexte + compétence restent mémorisés ; vous pouvez enchaîner les élèves.</p></div><label className="tablet-auto-next"><input type="checkbox" checked={autoAdvance} onChange={e=>setAutoAdvance(e.target.checked)}/>Élève suivant automatiquement</label></div>
       <div className="tablet-context-grid"><label>Contexte / activité<select value={progressionItem} onChange={e=>{setProgressionItem(e.target.value);setCompetency('')}}><option value="">Sans contexte associé</option>{progression.map(p=><option key={p.id} value={p.id}>{p.period_id} — {p.context_name}</option>)}</select></label><label>Groupe d’élèves<select value={studentGroup} onChange={e=>setStudentGroup(e.target.value)}><option value="">Toute la classe</option>{groups.map(g=><option key={g}>{g}</option>)}</select></label></div>
