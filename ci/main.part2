@@ -248,13 +248,48 @@ function StudentPfmp({ student, periods, debriefs, readOnly=false, onRefresh }) 
   return <div className="panel"><div className="panel-head"><div><h3>Suivi PFMP</h3><p>Débriefs et objectifs de progression.</p></div>{!readOnly&&<button className="btn primary" onClick={()=>setOpen(true)}><Plus/>Ajouter un débrief</button>}</div><div className="cards-list">{debriefs.map(d=><div className="mini-card" key={d.id}><div><strong>{d.company||'Entreprise non renseignée'}</strong><span>{new Date(d.debrief_date).toLocaleDateString('fr-FR')} {d.tutor_name?`• Tuteur : ${d.tutor_name}`:''}</span></div><p><b>Points forts :</b> {d.strengths||'—'}</p><p><b>Difficultés :</b> {d.difficulties||'—'}</p><p><b>Objectifs :</b> {d.next_objectives||'—'}</p></div>)}{debriefs.length===0&&<div className="small-empty">Aucun débrief PFMP.</div>}</div>{!readOnly&&open&&<PfmpDebriefModal student={student} periods={periods} onClose={()=>setOpen(false)} onSaved={()=>{setOpen(false);onRefresh()}}/>}</div>
 }
 
-function PfmpDebriefModal({student,periods,onClose,onSaved}) {
+function PfmpDebriefModal({student,periods,diplomaCode='',onClose,onSaved}) {
   const [f,setF]=useState({pfmp_period_id:periods[0]?.id||'',company:'',tutor_name:'',debrief_date:new Date().toISOString().slice(0,10),strengths:'',difficulties:'',next_objectives:'',summary:''})
+  const [gc,setGc]=useState([])
+  const [positions,setPositions]=useState({})
   const [error,setError]=useState('')
-  async function submit(e){e.preventDefault();const {data:{user}}=await supabase.auth.getUser();const {error}=await supabase.from('pp_pfmp_debriefs').insert({...f,pfmp_period_id:f.pfmp_period_id||null,student_id:student.id,teacher_id:user.id});if(error)setError(toastError(error));else onSaved()}
-  return <Modal title="Débrief PFMP" onClose={onClose}><form className="form-grid" onSubmit={submit}><label>Période<select value={f.pfmp_period_id} onChange={e=>setF({...f,pfmp_period_id:e.target.value})}><option value="">Sans période</option>{periods.map(p=><option key={p.id} value={p.id}>{p.label}</option>)}</select></label><label>Date<input type="date" value={f.debrief_date} onChange={e=>setF({...f,debrief_date:e.target.value})}/></label><label>Entreprise<input value={f.company} onChange={e=>setF({...f,company:e.target.value})}/></label><label>Tuteur<input value={f.tutor_name} onChange={e=>setF({...f,tutor_name:e.target.value})}/></label><label className="full">Points forts<textarea rows="3" value={f.strengths} onChange={e=>setF({...f,strengths:e.target.value})}/></label><label className="full">Difficultés<textarea rows="3" value={f.difficulties} onChange={e=>setF({...f,difficulties:e.target.value})}/></label><label className="full">Objectifs suivants<textarea rows="3" value={f.next_objectives} onChange={e=>setF({...f,next_objectives:e.target.value})}/></label>{error&&<div className="form-message">{error}</div>}<div className="modal-actions"><button type="button" className="btn ghost" onClick={onClose}>Annuler</button><button className="btn primary">Enregistrer</button></div></form></Modal>
+  const [busy,setBusy]=useState(false)
+  useEffect(()=>{
+    let active=true
+    async function loadGc(){
+      let code=diplomaCode
+      if(!code && student.class_id){const {data}=await supabase.from('pp_classes').select('diploma_code').eq('id',student.class_id).maybeSingle();code=data?.diploma_code}
+      if(!code)return
+      const {data,error}=await supabase.from('pp_competencies').select('code,label,group_code,parent_code').eq('diploma_code',code).is('parent_code',null).order('sort_order')
+      if(active){if(error)setError(toastError(error));else setGc(data||[])}
+    }
+    loadGc()
+    return()=>{active=false}
+  },[diplomaCode,student.class_id])
+  async function submit(e){
+    e.preventDefault();if(busy)return;setBusy(true);setError('')
+    const {data:{user},error:authError}=await supabase.auth.getUser()
+    if(authError||!user){setError('Connexion requise');setBusy(false);return}
+    const {error}=await supabase.from('pp_pfmp_debriefs').insert({...f,gc_positions:positions,pfmp_period_id:f.pfmp_period_id||null,student_id:student.id,teacher_id:user.id})
+    setBusy(false)
+    if(error)setError(toastError(error));else onSaved()
+  }
+  return <Modal title="Débrief PFMP — {student.last_name} {student.first_name}" onClose={onClose}><form className="form-grid" onSubmit={submit}>
+    <label>Période<select value={f.pfmp_period_id} onChange={e=>setF({...f,pfmp_period_id:e.target.value})}><option value="">Sans période</option>{periods.map(p=><option key={p.id} value={p.id}>{p.label}</option>)}</select></label>
+    <label>Date<input type="date" value={f.debrief_date} onChange={e=>setF({...f,debrief_date:e.target.value})}/></label>
+    <label>Entreprise<input value={f.company} onChange={e=>setF({...f,company:e.target.value})}/></label>
+    <label>Tuteur<input value={f.tutor_name} onChange={e=>setF({...f,tutor_name:e.target.value})}/></label>
+    <div className="full pfmp-gc-positioning"><h3>Positionnement des compétences GC</h3><p>Choisissez uniquement les compétences observées pendant cette PFMP. Les autres restent non évaluées.</p>
+      {gc.map(c=><div className="pfmp-gc-row" key={c.code}><div><b>{c.code}</b> · {c.label}</div><div className="pfmp-gc-levels">{[['','—'],['N','N'],['D','D'],['A','A'],['E','E'],['NE','NE']].map(([value,label])=><button key={label} type="button" aria-pressed={(positions[c.code]||'')===value} className={value?'pfmp-level pfmp-level-'+value:'pfmp-level'} onClick={()=>setPositions(prev=>{const next={...prev};if(value)next[c.code]=value;else delete next[c.code];return next})}>{label}</button>)}</div></div>)}
+      {!gc.length&&<small>Aucune compétence GC chargée pour ce diplôme.</small>}
+    </div>
+    <label className="full">Points forts<textarea rows="3" value={f.strengths} onChange={e=>setF({...f,strengths:e.target.value})}/></label>
+    <label className="full">Difficultés / points à consolider<textarea rows="3" value={f.difficulties} onChange={e=>setF({...f,difficulties:e.target.value})}/></label>
+    <label className="full">Conseils / objectifs pour la prochaine PFMP<textarea rows="3" value={f.next_objectives} onChange={e=>setF({...f,next_objectives:e.target.value})}/></label>
+    {error&&<div className="form-message full" role="alert">{error}</div>}
+    <div className="modal-actions"><button type="button" className="btn ghost" onClick={onClose}>Annuler</button><button className="btn primary" disabled={busy}><Save/>{busy?'Enregistrement…':'Enregistrer le débrief PFMP'}</button></div>
+  </form></Modal>
 }
-
 
 function StudentCcf({ student, exams, results, documents, requirements=[], readOnly=false, onRefresh }) {
   const resultMap=Object.fromEntries(results.map(r=>[r.exam_code,r]))
