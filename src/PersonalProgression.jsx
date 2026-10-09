@@ -85,6 +85,13 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
   useEffect(()=>{if(addRequestToken>0&&!readOnly)setAddMenu(true)},[addRequestToken,readOnly])
 
   async function remove(item){if(!confirm(`Supprimer « ${item.context_name} » ?`))return;await supabase.from('pp_progression_items').delete().eq('id',item.id);load()}
+  async function resumeInTerminale(item){
+    if(!confirm('Créer une reprise de ce contexte en Terminale ? Le contexte de Première sera conservé.'))return;
+    const {data:{user}}=await supabase.auth.getUser();
+    const {id,created_at,updated_at,revision,...copy}=item;
+    const {error}=await supabase.from('pp_progression_items').insert({...copy,class_id:klass.id,cycle_level:'terminale',period_id:'P1',created_by:user.id,status:'Prévu',updated_at:new Date().toISOString()});
+    if(error)throw error;
+  }
   async function duplicate(item){const {data:{user}}=await supabase.auth.getUser();const {id,created_at,updated_at,revision,...copy}=item;await supabase.from('pp_progression_items').insert({...copy,class_id:klass.id,context_name:`${item.context_name} — copie`,created_by:user.id,status:'Prévu',updated_at:new Date().toISOString()});load()}
   async function downloadAttachment(a){const {data,error}=await supabase.storage.from('pp-progression-files').createSignedUrl(a.storage_path,60);if(error)alert(err(error));else window.open(data.signedUrl,'_blank','noopener,noreferrer')}
   async function moveItem(item,direction){
@@ -387,7 +394,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
     </section></div>}
     {!readOnly&&addMenu&&<div className="personal-add-menu-backdrop" onClick={()=>setAddMenu(false)}><div className="personal-add-menu" role="dialog" aria-label="Choisir le type d’ajout" onClick={e=>e.stopPropagation()}><h4>Que souhaitez-vous ajouter ?</h4><button type="button" onClick={()=>{setNewKind('context');setAddMenu(false);setOpen(true)}}><b>Contexte professionnel</b><small>Situation professionnelle reliée au référentiel MCV</small></button><button type="button" onClick={()=>{setNewKind('event');setAddMenu(false);setOpen(true)}}><b>Évènement / activité pédagogique</b><small>Bac blanc, CCF, sortie, projet, révision, oral…</small></button><button type="button" className="personal-add-menu-cancel" onClick={()=>setAddMenu(false)}>Annuler</button></div></div>}
     {!readOnly&&open&&<ProgressionEditor klass={klass} periods={periods} teacherOptions={teacherOptions} initial={{...(newPeriod?{period_id:newPeriod}:{}),item_kind:newKind}} onClose={()=>{setOpen(false);setNewPeriod(null)}} onSaved={()=>{setOpen(false);setNewPeriod(null);load()}}/>}
-    {!readOnly&&editItem&&<ProgressionEditor klass={klass} periods={periods} teacherOptions={teacherOptions} initial={editItem} onClose={()=>setEditItem(null)} onSaved={()=>{setEditItem(null);load()}}/>}
+    {!readOnly&&editItem&&<ProgressionEditor klass={klass} periods={periods} teacherOptions={teacherOptions} initial={editItem} onDelete={()=>{remove(editItem).then(()=>{setEditItem(null);load()}).catch(e=>alert(err(e)))}} onResume={()=>{resumeInTerminale(editItem).then(()=>{setEditItem(null);load()}).catch(e=>alert(err(e)))}} onClose={()=>setEditItem(null)} onSaved={()=>{setEditItem(null);load()}}/>}
   </div>
 }
 
@@ -424,7 +431,7 @@ function ProgressionCard({item,files,readOnly,onEdit,onDelete,onDuplicate,onDown
 }
 
 function editorLines(value){return (Array.isArray(value)?value:[value]).flatMap(x=>String(x??'').replace(/\\n/g,'\n').split('\n')).map(x=>x.trim()).filter(Boolean)}
-function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose,onSaved}){
+function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose,onSaved,onDelete,onResume}){
   const [competencies,setCompetencies]=useState([])
   const [resources,setResources]=useState([])
   const [econ,setEcon]=useState([])
@@ -552,7 +559,7 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
   }
 
   return <div className="modal-backdrop" onMouseDown={onClose}><div className="modal progression-editor-modal" onMouseDown={e=>e.stopPropagation()}><style>{`
-.progression-editor-modal{width:min(1160px,96vw);max-height:94vh}
+.progression-editor-modal{width:min(1160px,96vw);max-height:94vh;font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#10223d}.progression-editor-modal label{font-weight:600}.progression-editor-modal input,.progression-editor-modal textarea,.progression-editor-modal select{border-radius:12px}.progression-editor-modal .modal-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:9px}.progression-editor-modal .modal-actions button{border-radius:11px;font-weight:500}
 .progression-editor-modal .editor-section{padding:24px 26px;margin:18px 0;border:1px solid #d9e3f1;border-radius:18px;background:#fff}
 .progression-editor-modal .editor-section>h4,.progression-editor-modal .editor-section-title h4{font-size:19px;margin:0 0 16px;color:#10223d}
 .progression-editor-modal .editor-section-title{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:18px}
@@ -592,7 +599,7 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
     {resourceChoices('expected_results','expectedText','Résultats attendus')}
     <div className="form-grid"><label className="full">Activités / productions élèves<textarea rows="7" value={f.activities} onChange={e=>setF({...f,activities:e.target.value})} placeholder="- Activité 1\n- Activité 2…"/></label><label className="full">Ajustement / observation<textarea rows="3" value={f.notes} onChange={e=>setF({...f,notes:e.target.value})} placeholder="À compléter au fil de l’année"/></label></div></div>
     <div className="editor-section"><h4>6. Transversalités économie-droit</h4><div className="econ-choice-grid">{econ.map(x=><button type="button" key={x.code} className={f.econ_law_links.includes(x.code)?'econ-choice selected':'econ-choice'} onClick={()=>toggleEcon(x.code)}><b>{x.code}</b><span>{x.question_label}</span></button>)}{!econ.length&&<div className="small-empty">Aucun lien économie-droit configuré pour ce diplôme.</div>}</div></div>
-    {message&&<div className="form-message">{message}</div>}<div className="modal-actions"><button type="button" className="btn ghost" onClick={onClose}>Annuler</button><button className="btn primary" disabled={busy}><Save/>{busy?'Enregistrement…':'Enregistrer'}</button></div>
+    {message&&<div className="form-message">{message}</div>}<div className="modal-actions">{isEditing&&onDelete&&<button type="button" className="btn ghost" disabled={busy} onClick={onDelete}><Trash2 size={16}/> Supprimer</button>}{isEditing&&onResume&&f.cycle_level!=='terminale'&&<button type="button" className="btn ghost" disabled={busy} onClick={onResume}>↗ Reprendre en Terminale</button>}<button type="button" className="btn ghost" onClick={onClose}>Annuler</button><button className="btn primary" disabled={busy}><Save/>{busy?'Enregistrement…':'Enregistrer'}</button></div>
   </form></div></div>
 }
 
