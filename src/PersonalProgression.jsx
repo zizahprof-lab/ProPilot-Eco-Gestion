@@ -556,15 +556,17 @@ function ProgressionEditor({klass,periods,teacherOptions=[],teacherMembers=[],cu
   }
   function refillFromReferential(){const x=resourceText(f.competencyCodes);setF(prev=>({...prev,behavioursText:x.beh,knowledgeText:x.know,expectedText:x.res}))}
   function toggleCode(code){setF(prev=>{const codes=prev.competencyCodes.includes(code)?prev.competencyCodes.filter(x=>x!==code):[...prev.competencyCodes,code];const next={...prev,competencyCodes:codes};if(!prev.behavioursText.trim()&&!prev.knowledgeText.trim()&&!prev.expectedText.trim()){const x=resourceText(codes);next.behavioursText=x.beh;next.knowledgeText=x.know;next.expectedText=x.res}return next})}
-  // Transversalités ciblées pour le Bac Pro Métiers de l'accueil : suggestions, jamais sélection obligatoire.
-  const accueilEconByGroup={
-    B1:['ED-M1-Q2','ED-M1-Q3','ED-M2-Q2','ED-M5-Q1'],
-    B2:['ED-M1-Q2','ED-M3-Q3','ED-M5-Q1','ED-M5-Q2'],
-    B3:['ED-M1-Q3','ED-M2-Q1','ED-M2-Q2','ED-M2-Q3','ED-M3-Q2']
+  // Correspondances pédagogiques indicatives par diplôme et groupe de compétences.
+  const econByDiploma={
+    ACCUEIL:{B1:['ED-M1-Q2','ED-M1-Q3','ED-M2-Q2','ED-M5-Q1'],B2:['ED-M1-Q2','ED-M3-Q3','ED-M5-Q1','ED-M5-Q2'],B3:['ED-M1-Q3','ED-M2-Q1','ED-M2-Q2','ED-M2-Q3','ED-M3-Q2']},
+    '2MRC':{C1:['ED-M1-Q3','ED-M2-Q1','ED-M2-Q2','ED-M2-Q3'],C2:['ED-M1-Q3','ED-M2-Q3','ED-M3-Q2'],C3:['ED-M1-Q1','ED-M3-Q3','ED-M5-Q1']},
+    MCVA:{G1:['ED-M1-Q3','ED-M2-Q1','ED-M2-Q2','ED-M2-Q3'],G2:['ED-M1-Q3','ED-M2-Q3','ED-M3-Q3'],G3:['ED-M2-Q2','ED-M3-Q2','ED-M3-Q3'],G4A:['ED-M3-Q1','ED-M3-Q2','ED-M3-Q3']},
+    MCVB:{G1:['ED-M1-Q3','ED-M2-Q1','ED-M2-Q2','ED-M2-Q3'],G2:['ED-M1-Q3','ED-M2-Q3','ED-M3-Q3'],G3:['ED-M2-Q2','ED-M3-Q2','ED-M3-Q3'],G4B:['ED-M1-Q1','ED-M3-Q3','ED-M5-Q1']},
+    AGORA:{B1:['ED-M1-Q2','ED-M1-Q3','ED-M3-Q3'],B2:['ED-M3-Q1','ED-M3-Q2','ED-M3-Q3'],B3:['ED-M5-Q1','ED-M5-Q2','ED-M5-Q3']}
   }
-  const accueilSelectedGroups=new Set(f.competencyCodes.map(code=>competencies.find(c=>c.code===code)?.group_code).filter(Boolean))
-  const accueilRecommended=new Set(klass.diploma_code==='ACCUEIL'?[...accueilSelectedGroups].flatMap(group=>accueilEconByGroup[group]||[]):[])
-  const sortedEcon=klass.diploma_code==='ACCUEIL'?[...econ].sort((a,b)=>Number(accueilRecommended.has(b.code))-Number(accueilRecommended.has(a.code))):econ
+  const selectedEconGroups=new Set(f.competencyCodes.map(code=>competencies.find(c=>c.code===code)?.group_code).filter(Boolean))
+  const recommendedEcon=new Set([...selectedEconGroups].flatMap(group=>econByDiploma[klass.diploma_code]?.[group]||[]))
+  const sortedEcon=[...econ].sort((a,b)=>Number(recommendedEcon.has(b.code))-Number(recommendedEcon.has(a.code)))
   function toggleEcon(code){setF({...f,econ_law_links:f.econ_law_links.includes(code)?f.econ_law_links.filter(x=>x!==code):[...f.econ_law_links,code]})}
   async function removeFile(a){if(!confirm(`Supprimer ${a.file_name} ?`))return;await supabase.storage.from('pp-progression-files').remove([a.storage_path]);await supabase.from('pp_progression_attachments').delete().eq('id',a.id);loadFiles()}
   async function uploadPending(itemId,userId){for(const file of files){const path=`${userId}/${itemId}/${Date.now()}-${safeName(file.name)}`;const {error}=await supabase.storage.from('pp-progression-files').upload(path,file);if(error)throw error;const {error:dbError}=await supabase.from('pp_progression_attachments').insert({progression_item_id:itemId,file_name:file.name,storage_path:path,mime_type:file.type||null,file_size:file.size,uploaded_by:userId});if(dbError)throw dbError}}
@@ -763,7 +765,7 @@ function ProgressionEditor({klass,periods,teacherOptions=[],teacherMembers=[],cu
     {resourceChoices('knowledge','knowledgeText','Savoirs associés')}
     {resourceChoices('expected_results','expectedText','Résultats attendus')}
     <div className="form-grid"><label className="full">Activités / productions élèves<textarea rows="7" value={f.activities} onChange={e=>setF({...f,activities:e.target.value})} placeholder="- Activité 1\n- Activité 2…"/></label><label className="full">Ajustement / observation<textarea rows="3" value={f.notes} onChange={e=>setF({...f,notes:e.target.value})} placeholder="À compléter au fil de l’année"/></label></div></div>
-    {klass.diploma_code!=='EPC'&&<div className="editor-section"><h4>6. Transversalités économie-droit</h4><div className="econ-choice-grid">{sortedEcon.map(x=><button type="button" key={x.code} className={f.econ_law_links.includes(x.code)?'econ-choice selected':'econ-choice'} onClick={()=>toggleEcon(x.code)}><b>{x.code}{accueilRecommended.has(x.code)?' · Suggéré pour les compétences sélectionnées':''}</b><span>{x.question_label}</span></button>)}{!econ.length&&<div className="small-empty">Aucun lien économie-droit configuré pour ce diplôme.</div>}</div></div>}
+    {klass.diploma_code!=='EPC'&&<div className="editor-section"><h4>6. Transversalités économie-droit</h4><div className="econ-choice-grid">{sortedEcon.map(x=><button type="button" key={x.code} className={f.econ_law_links.includes(x.code)?'econ-choice selected':'econ-choice'} onClick={()=>toggleEcon(x.code)}><b>{x.code}{recommendedEcon.has(x.code)?' · Suggéré pour les compétences sélectionnées':''}</b><span>{x.question_label}</span></button>)}{!econ.length&&<div className="small-empty">Aucun lien économie-droit configuré pour ce diplôme.</div>}</div></div>}
     {message&&<div className="form-message">{message}</div>}<div className="modal-actions">{isEditing&&onDelete&&<button type="button" className="btn ghost" disabled={busy} onClick={onDelete}><Trash2 size={16}/> Supprimer</button>}{isEditing&&onResume&&f.cycle_level!=='terminale'&&<button type="button" className="btn ghost" disabled={busy} onClick={onResume}>↗ Reprendre en Terminale</button>}<button type="button" className="btn ghost" onClick={onClose}>Annuler</button><button className="btn primary" disabled={busy}><Save/>{busy?'Enregistrement…':'Enregistrer'}</button></div>
   </form></div></div>
 }
