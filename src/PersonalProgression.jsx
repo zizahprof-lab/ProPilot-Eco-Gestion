@@ -414,7 +414,7 @@ function ProgressionCard({item,files,readOnly,onEdit,onDelete,onDuplicate,onDown
     <h4>{item.context_name}</h4>
     <div className="personal-card-competencies">{[...new Set((item.competencies||[]).map(c=>{const raw=typeof c==='object'?(c.group||c.group_code||''):'';const key=PERSONAL_TO_GROUP[raw]||raw;return GROUP_STYLE[key]?.personal||(typeof c==='string'?(c.match(/GC(?:1|2|3|4A|4B)/i)||[])[0]:null)}).filter(Boolean))].map(code=><span key={code} className="personal-card-group-tag">{code}</span>)}</div>
     {item.problematic&&<p className="personal-card-problem">{item.problematic}</p>}
-    <div className="personal-card-badges"><span>{group.personal}</span><span className={`level-${item.learning_level||'D'}`}>{item.learning_level||'D'}</span><span>{item.status||'Prévu'}</span>{item.item_kind==='event'&&<span>{item.activity_type||'Évènement'}</span>}</div>
+    <div className="personal-card-badges"><span className={`level-${item.learning_level||'D'}`}>{item.learning_level||'D'}</span><span>{item.status||'Prévu'}</span>{item.item_kind==='event'&&<span>{item.activity_type||'Évènement'}</span>}</div>
     <p><b>{item.teacher_label||'Enseignant à préciser'}</b> · {Number(item.duration_hours||0).toFixed(1)} h</p>
     <div className="personal-card-meta"><span>{(item.competencies||[]).length} compétence(s)</span><span>{(item.econ_law_links||[]).length} lien(s) éco-droit</span>{files.length>0&&<span>{files.length} pièce(s)</span>}</div>
     {files.length>0&&<div className="personal-card-files">{files.slice(0,2).map(f=><button key={f.id} onClick={e=>{e.stopPropagation();onDownload(f)}} title={f.file_name}><FileText/>{f.file_name}</button>)}</div>}
