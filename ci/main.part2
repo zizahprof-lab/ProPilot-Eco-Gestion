@@ -112,7 +112,7 @@ function StudentAccessTab({klass,readOnly=false}){
     setMessage('Code généré. Remettez-le directement à l’élève et conservez-le en lieu sûr.')
     await load()
   }
-  const modules=[['self_assessment','Auto-évaluation'],['teacher_positions','Positionnements professeur'],['teacher_comments','Commentaires professeur'],['pfmp','Débriefs PFMP'],['synthesis','Synthèse de fin de cycle'],['ccf','Dépôts et suivi CCF'],['progression','Progression'],['reports','Rapports']]
+  const modules=[['self_assessment','Auto-évaluation'],['teacher_positions','Positionnements professeur'],['teacher_comments','Commentaires professeur'],['pfmp','Débriefs PFMP'],['synthesis','Synthèse de fin de cycle'],...(klass.diploma_code==='2MRC'?[]:[['ccf','Dépôts et suivi CCF']]),['progression','Progression'],['reports','Rapports']]
   return <section className="panel reference-access-panel" style={{background:'#fff',borderRadius:18,padding:18}}>
     <div className="panel-head"><div><h2 style={{margin:0}}>Accès élève & visibilité</h2><p>Le professeur choisit ce que l’élève peut consulter. L’auto-évaluation peut rester accessible sans publier les commentaires ou les positionnements professeur.</p></div></div>
     <div className="access-v14-selectors"><label>Classe<input value={klass.name+' · '+klass.school_year} disabled/></label><label>Élève<select value={selectedId} onChange={e=>setSelectedId(e.target.value)}>{students.map(s=><option key={s.id} value={s.id}>{s.last_name} {s.first_name}</option>)}</select></label></div>
