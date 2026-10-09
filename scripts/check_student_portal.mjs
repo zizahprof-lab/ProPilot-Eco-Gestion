@@ -7,7 +7,7 @@ const checks=[
   ['écran accès élève désactivé', main.includes('Accès élève désactivé')],
   ['actualisation au retour dans l’onglet', main.includes("window.addEventListener('focus',refresh)")],
   ['autoévaluation rattachable à un contexte', main.includes('progression_item_id:progressionItem||null')],
-  ['compétences du contexte filtrées par parent_code', main.includes('contextCodes.has(c.parent_code)')],
+  ['compétences du contexte filtrées par parent_code', main.includes('contextCodes.has(c.code)') && main.includes('c.parent_code===parent.code')],
   ['commentaires professeur visibles si publiés', main.includes('Commentaire de l’enseignant')],
   ['PFMP élève affiche les difficultés', main.includes('<b>Difficultés :</b>')],
   ['dépôt document élève disponible', main.includes('Déposer un document')],
