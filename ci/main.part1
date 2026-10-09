@@ -13,6 +13,7 @@ import GuidedTour from './GuidedTour'
 import PersonalProgression from './PersonalProgression'
 import EvaluationMatrix from './EvaluationMatrix'
 import PfmpInline from './PfmpInline'
+import SynthesisV14 from './SynthesisV14'
 import { detectCsvDelimiter, parseCsvText } from './csv'
 import './styles.css'
 
