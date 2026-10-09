@@ -350,7 +350,7 @@ function StudentPortal({ student, portalState, onSignOut }) {
     ...((liveStudent.visibility?.synthesis||liveStudent.visibility?.teacher_positions)?[['home','Synthèse',BarChart3]]:[]),
     ...(liveStudent.visibility?.self_assessment?[['self','Autoévaluation',Target]]:[]),
     ...(liveStudent.visibility?.progression?[['progression','Progression',BookOpenCheck]]:[]),
-    ...(liveStudent.visibility?.ccf?[['ccf','CCF',ListChecks]]:[]),
+    ...(klass?.diploma_code!=='2MRC'&&liveStudent.visibility?.ccf?[['ccf','CCF',ListChecks]]:[]),
     ...(liveStudent.visibility?.pfmp?[['pfmp','PFMP',BriefcaseBusiness]]:[]),
     ...((liveStudent.visibility?.reports||liveStudent.visibility?.pfmp||documents.some(d=>d.document_scope!=='ccf'))?[['docs','Documents',FolderOpen]]:[]),
   ]
@@ -370,7 +370,7 @@ function StudentPortal({ student, portalState, onSignOut }) {
         {tab==='home'&&<StudentOwnSummary student={liveStudent} synthesis={synthesis} positions={positions} noteEnabled={synthesis.note_enabled}/>}
         {tab==='self'&&<StudentSelfAssessment student={liveStudent} klass={klass} progression={progression} selfEvals={selfEvals} onRefresh={load}/>}
         {tab==='progression'&&<StudentProgression items={progression}/>}
-        {tab==='ccf'&&<StudentOwnCcf student={liveStudent} items={ccf} documents={documents} onRefresh={load}/>}
+        {tab==='ccf'&&klass?.diploma_code!=='2MRC'&&<StudentOwnCcf student={liveStudent} items={ccf} documents={documents} onRefresh={load}/>}
         {tab==='pfmp'&&<StudentOwnPfmp debriefs={pfmp}/>}
         {tab==='docs'&&<StudentOwnDocuments student={liveStudent} documents={documents} onRefresh={load}/>}
       </>:<div className="empty-state compact"><EyeOff/><h3>Aucun module publié</h3><p>Votre enseignant n’a pas encore rendu de contenu visible dans votre espace.</p></div>}
@@ -410,7 +410,7 @@ function StudentSelfAssessment({student,klass,progression=[],selfEvals,onRefresh
   const contexts=progression.filter(p=>p.item_kind==='context')
   const selectedContext=contexts.find(p=>p.id===progressionItem)
   const contextCodes=new Set((selectedContext?.competencies||[]).map(c=>typeof c==='string'?c:(c.code||c.parent_code||c.comp_code)).filter(Boolean))
-  const sections=competencies.filter(c=>!c.parent_code&&(!progressionItem||contextCodes.has(c.code))).map(parent=>({parent,children:competencies.filter(c=>c.parent_code===parent.code)}))
+  const sections=competencies.filter(c=>!c.parent_code&&(klass.diploma_code==='2MRC'||!progressionItem||contextCodes.has(c.code))).map(parent=>({parent,children:competencies.filter(c=>c.parent_code===parent.code)}))
   useEffect(()=>{setLevels({});setSuccess('');setDifficulty('');setMessage('')},[progressionItem])
   async function save(e){
     e.preventDefault();if(busy)return
