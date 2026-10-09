@@ -329,7 +329,7 @@ function StudentPortal({ student, portalState, onSignOut }) {
     ])
     setDashboard(db.data||{synthesis:null,positions:[]})
     setSelfEvals(se.data||[])
-    setCcf(cc.data||[])
+    setCcf((cc.data||[]).filter(ex=>klass?.diploma_code!=='ACCUEIL'||['E31','E32'].includes(ex.exam_code)))
     setProgression(pr.data||[])
     setPfmp(pf.data||[])
     setDocuments(do_.data||[])
