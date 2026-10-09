@@ -158,7 +158,7 @@ export default function SetupWizard({onClose,onCreated}){
       setStep(3)
       setBusy(true)
       try {
-        const saved=await patch({diploma_code:draft.diploma_code,school_year:draft.school_year||'2026-2027',class_name:draft.class_name.trim(),level_label:draft.level_label,reference_ready:reference.competencies>0&&reference.exams.length>0},3)
+        const saved=await patch({diploma_code:draft.diploma_code,school_year:draft.school_year||'2026-2027',class_name:draft.class_name.trim(),level_label:draft.level_label,reference_ready:reference.competencies>0&&(draft.diploma_code==='2MRC'||reference.exams.length>0)},3)
         if(!saved)setStep(2)
       } catch(error) {
         setMessage('Erreur lors de la sauvegarde : '+String(error?.message||error))
