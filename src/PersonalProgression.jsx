@@ -54,8 +54,8 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
   const [syncState,setSyncState]=useState('Synchronisation…')
   const timelineRef=useRef(null)
   const topScrollRef=useRef(null)
-  function syncTimelinePosition(){const el=timelineRef.current,top=topScrollRef.current;if(!el||!top)return;const ratio=el.scrollLeft/Math.max(1,el.scrollWidth-el.clientWidth);top.scrollLeft=ratio*Math.max(0,top.scrollWidth-top.clientWidth)}
-  function syncFromTop(){const el=timelineRef.current,top=topScrollRef.current;if(!el||!top)return;const ratio=top.scrollLeft/Math.max(1,top.scrollWidth-top.clientWidth);el.scrollLeft=ratio*Math.max(0,el.scrollWidth-el.clientWidth)}
+  function syncTimelinePosition(){const el=timelineRef.current,top=topScrollRef.current;if(!el||!top)return;const max=Math.max(0,el.scrollWidth-el.clientWidth);const topMax=Math.max(0,top.scrollWidth-top.clientWidth);if(max>0&&topMax>0)top.scrollLeft=(el.scrollLeft/max)*topMax}
+  function syncFromTop(){const el=timelineRef.current,top=topScrollRef.current;if(!el||!top)return;const max=Math.max(0,el.scrollWidth-el.clientWidth);const topMax=Math.max(0,top.scrollWidth-top.clientWidth);if(max>0&&topMax>0)el.scrollLeft=(top.scrollLeft/topMax)*max}
 
   async function load(){
     setSyncState('Synchronisation…')
@@ -102,7 +102,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
     await Promise.all(reordered.map((row,i)=>supabase.from('pp_progression_items').update({sort_order:(i+1)*10,updated_at:new Date().toISOString()}).eq('id',row.id)))
     load()
   }
-  function scrollTimeline(where){const el=timelineRef.current;if(!el)return;if(where==='start')el.scrollTo({left:0,behavior:'smooth'});else if(where==='end')el.scrollTo({left:el.scrollWidth,behavior:'smooth'});else el.scrollBy({left:where*420,behavior:'smooth'})}
+  function scrollTimeline(where){const el=timelineRef.current;if(!el)return;const max=Math.max(0,el.scrollWidth-el.clientWidth);const left=where==='start'?0:where==='end'?max:Math.max(0,Math.min(max,el.scrollLeft+where*420));el.scrollTo({left,behavior:'smooth'})}
 
   const visible=useMemo(()=>items.filter(i=>(cycleView==='cycle'||(i.cycle_level||levelToCycle(klass.level_label))===cycleView)&&(!teacherFilter||i.teacher_label===teacherFilter)&&(!groupFilter||groupKey(i)===groupFilter)&&(!levelFilter||i.learning_level===levelFilter)),[items,klass.level_label,cycleView,teacherFilter,groupFilter,levelFilter])
   const covered=useMemo(()=>new Set(items.flatMap(i=>competencyCodes(i.competencies))),[items])
@@ -329,7 +329,7 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       @media(max-width:850px){.personal-v14-ring-grid{grid-template-columns:1fr}.personal-v14-ring-card{min-height:65px}.personal-analytics-levels{grid-template-columns:repeat(2,minmax(0,1fr))}}
       @media(max-width:700px){.personal-v14-ring-grid{grid-template-columns:1fr}}
     `}</style>
-    <div className="personal-timeline-navigation no-print"><button onClick={()=>scrollTimeline('start')}>« Début</button><button onClick={()=>scrollTimeline(-1)}>←</button><div className="personal-scroll-track" ref={topScrollRef} onScroll={syncFromTop} role="region" aria-label="Barre de défilement supérieure de la progression" tabIndex={0}><div style={{width:timelineColumns.reduce((total,col)=>total+(col.kind==='pfmp'?76:258),0)+Math.max(0,timelineColumns.length-1)*8,height:1}}/></div><button onClick={()=>scrollTimeline(1)}>→</button><button onClick={()=>scrollTimeline('end')}>Fin »</button></div>
+    <div className="personal-timeline-navigation no-print"><button onClick={()=>scrollTimeline('start')}>« Début</button><button onClick={()=>scrollTimeline(-1)}>←</button><div className="personal-scroll-track" ref={topScrollRef} onScroll={syncFromTop} role="region" aria-label="Barre de défilement supérieure de la progression" tabIndex={0}><div style={{width:timelineColumns.reduce((total,col)=>total+(col.kind==='pfmp'?76:258),0)+Math.max(0,timelineColumns.length-1)*8+24,height:1}}/></div><button onClick={()=>scrollTimeline(1)}>→</button><button onClick={()=>scrollTimeline('end')}>Fin »</button></div>
     <div className="personal-timeline-wrap" ref={timelineRef} onScroll={syncTimelinePosition}>
       <div className="personal-timeline" style={{gridTemplateColumns:timelineColumns.map(col=>col.kind==='pfmp'?'76px':'258px').join(' ')}}>
         {timelineColumns.map(col=>col.kind==='pfmp'
