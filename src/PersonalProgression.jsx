@@ -250,6 +250,12 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-summary-side-by-side .personal-summary-alerts p:last-child{border-bottom:0}
       @media(max-width:950px){.personal-summary-side-by-side .personal-summary-alerts{min-height:auto}.personal-summary-side-by-side .personal-summary-alerts p{flex:initial}}
       @media(max-width:950px){.personal-summary-side-by-side{grid-template-columns:1fr}}
+      /* Indicateurs synthétiques : quatre pastilles compactes sans cartes géantes */
+      .personal-progression-summary .personal-kpis{display:flex!important;flex-wrap:wrap;gap:8px!important;margin:10px 0 12px!important;align-items:stretch}
+      .personal-progression-summary .personal-kpi{display:flex!important;flex:1 1 185px;min-width:0;align-items:center;justify-content:space-between;gap:12px;padding:9px 13px!important;min-height:48px!important;border-radius:10px!important;box-shadow:none!important}
+      .personal-progression-summary .personal-kpi span{font-size:12px!important;line-height:1.25}
+      .personal-progression-summary .personal-kpi strong{font-size:21px!important;line-height:1.1;white-space:nowrap}
+      @media(max-width:600px){.personal-progression-summary .personal-kpi{flex-basis:calc(50% - 8px);padding:8px!important}.personal-progression-summary .personal-kpi strong{font-size:18px!important}}
       /* Tableau de bord dense, contrasté et lumineux */
       .personal-v14-dashboard{padding:13px 15px;margin:12px 0 16px;border-radius:16px;background:#f6f9ff}
       .personal-v14-dashboard-title{margin-bottom:10px;align-items:center}
