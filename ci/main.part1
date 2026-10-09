@@ -490,12 +490,12 @@ function CreateClassModal({ onClose, onCreated }) {
   async function submit(e) {
     e.preventDefault(); setBusy(true); setError('')
     const { data: { user } } = await supabase.auth.getUser()
-    const { error } = await supabase.from('pp_classes').insert({ ...form, owner_id:user.id })
+    const { error } = await supabase.from('pp_classes').insert({ ...form, enabled_modules:{progression:true,students:true,evaluations:true,pfmp:true,synthesis:true,student_portal:true,ccf:form.diploma_code!=='2MRC'}, owner_id:user.id })
     if (error) setError(toastError(error)); else onCreated()
     setBusy(false)
   }
   return <Modal title="Créer une classe" onClose={onClose}><form className="form-grid" onSubmit={submit}>
-    <label>Nom de la classe<input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ex. 1MCVA" required/></label>
+    <label>Nom de la classe<input value={form.name} onChange={e=>{const two=/^2\s*MRC/i.test(e.target.value.trim());setForm({...form,name:e.target.value,...(two?{diploma_code:'2MRC',level_label:'2de'}:{})})}} placeholder="Ex. 2MRC1" required/></label>
     <label>Année scolaire<input value={form.school_year} onChange={e=>setForm({...form,school_year:e.target.value})} required/></label>
     <label>Niveau<select value={form.level_label} onChange={e=>setForm({...form,level_label:e.target.value})}><option>2de</option><option>1re</option><option>Terminale</option></select></label>
     <label>Diplôme<select value={form.diploma_code} onChange={e=>setForm({...form,diploma_code:e.target.value})}>{packs.map(p=><option key={p.code} value={p.code}>{p.short_name}</option>)}</select></label>
