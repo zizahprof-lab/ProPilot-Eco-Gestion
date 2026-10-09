@@ -11,7 +11,7 @@ export default function EvaluationMatrix({klass,readOnly=false,onClassic}){
  supabase.from('pp_progression_items').select('id,context_name,period_id,competencies').eq('class_id',klass.id).order('sort_order').order('created_at'),
  supabase.from('pp_competencies').select('code,label,group_code,parent_code').eq('diploma_code',klass.diploma_code).order('sort_order')
  ]).then(([s,i,c])=>{if(!active)return;setStudents(s.data||[]);setItems((i.data||[]).filter(x=>x.context_name));setCompetencies(c.data||[]);setContext(prev=>prev||(localStorage.getItem('pp_last_context_'+klass.id)||i.data?.find(x=>codes(x.competencies).length)?.id||''))}).catch(e=>setMessage(e.message));return()=>{active=false}},[klass.id,klass.diploma_code])
- const detailed=['2MRC','ACCUEIL'].includes(klass.diploma_code)
+ const detailed=['2MRC','ACCUEIL','EPC'].includes(klass.diploma_code)
  const selected=items.find(i=>i.id===context)
  const target=useMemo(()=>{const choices=competencies.filter(c=>(detailed?!!c.parent_code:!c.parent_code)&&(klass.diploma_code!=='2MRC'||c.group_code!=='AP'));if(!selected)return context?[]:choices;const assigned=new Set(codes(selected.competencies));return choices.filter(c=>assigned.has(c.code)||assigned.has(c.parent_code)||( !detailed && competencies.some(child=>child.parent_code===c.code&&assigned.has(child.code)) ))},[selected,context,competencies,detailed])
  const visible=students.filter(s=>(!group||s.group_name===group)&&(!search||((s.last_name||'')+' '+(s.first_name||'')).toLowerCase().includes(search.toLowerCase())))
