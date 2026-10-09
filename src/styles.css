@@ -319,3 +319,7 @@
 @media(max-width:650px){.access-v14-selectors,.access-v14-modules{grid-template-columns:1fr}}
 
 .access-v14-detail .btn.primary:disabled{opacity:.6;cursor:not-allowed}
+
+/* Autoévaluation élève : reprise compacte de la grille PFMP, historique conservé */
+.student-self-pfmp-style .pfmp-inline-group{margin-bottom:0}
+.student-self-pfmp-style .recent-row{padding:9px 0}
