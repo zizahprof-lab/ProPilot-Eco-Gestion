@@ -247,8 +247,6 @@ function PfmpClassTab({klass, readOnly=false}) {
   const [debriefs,setDebriefs]=useState([])
   const [open,setOpen]=useState(false)
   const [editPeriod,setEditPeriod]=useState(null)
-  const [debriefStudentId,setDebriefStudentId]=useState('')
-  const [debriefOpen,setDebriefOpen]=useState(false)
   async function load(){
     const [p,s]=await Promise.all([
       supabase.from('pp_pfmp_periods').select('*').eq('class_id',klass.id).order('sort_order'),
@@ -272,10 +270,11 @@ function PfmpClassTab({klass, readOnly=false}) {
   }
   return <>
     <div className="summary-cards class-summary-cards"><div className="summary-card accent"><span>Couverture des débriefs</span><strong>{coverage}%</strong><small>Débriefs rattachés aux périodes</small></div><div className="summary-card"><span>Élèves avec suivi PFMP</span><strong>{anyDebrief} / {students.length}</strong><small>Au moins un débrief</small></div><div className="summary-card"><span>Périodes configurées</span><strong>{periods.length}</strong><small>{debriefs.length} débrief(s) au total</small></div></div>
-    <div className="toolbar wrap"><div><h3>Suivi PFMP de la classe</h3><p>Les dates sont propres à cette classe et se répercutent dans la progression personnelle.</p></div><div className="row">{!readOnly&&periods.length>0&&students.length>0&&<><select aria-label="Choisir un élève pour le débrief" value={debriefStudentId} onChange={e=>setDebriefStudentId(e.target.value)}><option value="">Choisir un élève…</option>{students.map(st=><option value={st.id} key={st.id}>{st.last_name} {st.first_name}</option>)}</select><button className="btn primary" disabled={!debriefStudentId} onClick={()=>setDebriefOpen(true)}><ClipboardCheck/>Débrief élève</button></>}{periods.length>0&&<button className="btn" onClick={exportCsv}><Download/>Exporter CSV</button>}{!readOnly&&<button className="btn primary" onClick={()=>{setEditPeriod(null);setOpen(true)}}><Plus/>Nouvelle période</button>}</div></div>
+    <div className="toolbar wrap"><div><h3>Suivi PFMP de la classe</h3><p>Les dates sont propres à cette classe et se répercutent dans la progression personnelle.</p></div><div className="row">{periods.length>0&&<button className="btn" onClick={exportCsv}><Download/>Exporter CSV</button>}{!readOnly&&<button className="btn primary" onClick={()=>{setEditPeriod(null);setOpen(true)}}><Plus/>Nouvelle période</button>}</div></div>
+    {periods.length>0&&students.length>0&&<PfmpInline klass={klass} students={students} periods={periods} readOnly={readOnly} onSaved={load}/>}
     {periods.length>0&&<div className="cards-list period-list">{periods.map(p=><div className="document-row" key={p.id}><div className="doc-icon"><CalendarDays/></div><div><strong>{p.label}</strong><span>{p.start_date||'Date non définie'} → {p.end_date||'Date non définie'}</span></div>{!readOnly&&<div className="row"><button className="icon-btn" onClick={()=>{setEditPeriod(p);setOpen(true)}} title="Modifier les dates"><Pencil/></button><button className="icon-btn danger-text" onClick={()=>remove(p.id)} title="Supprimer"><Trash2/></button></div>}</div>)}</div>}
     {periods.length>0?<div className="table-card pfmp-matrix"><table><thead><tr><th>Élève</th>{periods.map(p=><th key={p.id}>{p.label}</th>)}</tr></thead><tbody>{students.map(st=><tr key={st.id}><td><strong>{st.last_name} {st.first_name}</strong><div className="cell-sub">{st.group_name||''}</div></td>{periods.map(p=>{const d=cell(st.id,p.id);return <td key={p.id}>{d?<div><span className="badge success">Débrief fait</span><div className="cell-sub">{d.company||new Date(d.debrief_date).toLocaleDateString('fr-FR')}</div></div>:<span className="badge muted">À faire</span>}</td>})}</tr>)}</tbody></table>{!students.length&&<div className="small-empty">Aucun élève.</div>}</div>:<div className="empty-state compact"><BriefcaseBusiness/><h3>Aucune PFMP configurée</h3><p>Créez une période pour commencer le suivi.</p></div>}
-    {!readOnly&&debriefOpen&&debriefStudentId&&<PfmpDebriefModal student={students.find(st=>st.id===debriefStudentId)} periods={periods} diplomaCode={klass.diploma_code} onClose={()=>setDebriefOpen(false)} onSaved={()=>{setDebriefOpen(false);load()}}/>}
+    
     {!readOnly&&open&&<PfmpPeriodModal klass={klass} initial={editPeriod} onClose={()=>{setOpen(false);setEditPeriod(null)}} onSaved={()=>{setOpen(false);setEditPeriod(null);load()}}/>}
   </>
 }
