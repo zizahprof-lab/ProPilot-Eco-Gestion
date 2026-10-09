@@ -295,6 +295,7 @@ function Splash() {
 function AuthScreen() {
   const [mode, setMode] = useState('login')
   const accountType = 'teacher'
+  const [loginRole,setLoginRole]=useState('student')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -344,7 +345,8 @@ function AuthScreen() {
       </div>
       <form className="auth-card" onSubmit={submit}>
         <h2>{mode === 'login' ? 'Connexion' : 'Créer mon compte'}</h2>
-        {mode === 'login' && <div className="pilot-signup-note"><strong>Élèves : compte déjà créé par votre professeur</strong><span>Saisissez votre adresse e-mail et le code de connexion remis par votre professeur dans le champ « Mot de passe ». Il n'est pas nécessaire de créer un compte.</span></div>}
+        {mode === 'login' && <div className="segmented"><button type="button" className={loginRole==='student'?'active':''} onClick={()=>setLoginRole('student')}>Élève</button><button type="button" className={loginRole==='teacher'?'active':''} onClick={()=>setLoginRole('teacher')}>Enseignant</button></div>}
+        {mode === 'login' && loginRole==='student' && <div className="pilot-signup-note"><strong>Mon compte est créé par mon professeur</strong><span>Je saisis mon adresse e-mail et le code remis par mon professeur pour me connecter.</span></div>}
         {mode === 'signup' && accountType === 'teacher' && (
           <>
             <div className="pilot-signup-note"><strong>Pilote formateurs académiques</strong><span>10 places professeur • validation administrateur obligatoire</span></div>
@@ -353,12 +355,12 @@ function AuthScreen() {
         )}
         <label>Adresse e-mail<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required /></label>
         <label>{mode==='login'?'Mot de passe ou code élève':'Mot de passe'}<div style={{position:"relative"}}><input type={showPassword?"text":"password"} value={password} onChange={e=>setPassword(e.target.value)} minLength={8} required style={{paddingRight:48,width:"100%"}}/><button type="button" onClick={()=>setShowPassword(v=>!v)} aria-label={showPassword?"Masquer le mot de passe":"Afficher le mot de passe"} title={showPassword?"Masquer":"Afficher"} style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",border:0,background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",color:"#52627b"}}>{showPassword?<EyeOff size={21}/>:<Eye size={21}/>}</button></div></label>{mode==='signup'&&accountType==='teacher'&&<small className="muted auth-domain-hint">Phase pilote : adresse @ac-aix-marseille.fr obligatoire, sauf comptes de test expressément autorisés.</small>}
-        {mode==='login'&&<button type="button" className="link-btn forgot-link" onClick={forgotPassword}>Mot de passe oublié ?</button>}
+        {mode==='login'&&loginRole==='teacher'&&<button type="button" className="link-btn forgot-link" onClick={forgotPassword}>Mot de passe oublié ?</button>}
         {message && <div className="form-message">{message}</div>}
         <button className="btn primary wide" disabled={busy}>{busy ? 'Patiente…' : mode === 'login' ? 'Se connecter' : 'Créer le compte'}</button>
-        <button type="button" className="link-btn" onClick={()=>setMode(mode==='login'?'signup':'login')}>
+        {(mode==='signup'||loginRole==='teacher')&&<button type="button" className="link-btn" onClick={()=>setMode(mode==='login'?'signup':'login')}>
           {mode === 'login' ? "Enseignant : créer un compte" : "J'ai déjà un compte"}
-        </button>
+        </button>}
       </form>
     </div>
   )
