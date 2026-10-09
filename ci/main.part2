@@ -77,13 +77,14 @@ function StudentsTab({ klass, readOnly=false }) {
   const [showAdd,setShowAdd]=useState(false)
   const [showImport,setShowImport]=useState(false)
   const [selected,setSelected]=useState(null)
+  const [editSelected,setEditSelected]=useState(false)
   async function load() { const {data}=await supabase.from('pp_students').select('*').eq('class_id',klass.id).order('last_name'); setStudents(data||[]) }
   useEffect(()=>{load()},[klass.id])
   const filtered=students.filter(s=>`${s.last_name} ${s.first_name}`.toLowerCase().includes(q.toLowerCase()))
-  if (selected) return <StudentDetail klass={klass} student={selected} readOnly={readOnly} onBack={()=>{setSelected(null);load()}} />
+  if (selected) return <StudentDetail klass={klass} student={selected} readOnly={readOnly} initialEdit={editSelected} onBack={()=>{setSelected(null);setEditSelected(false);load()}} />
   return <>
     <div className="toolbar wrap"><div className="search"><Search size={18}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher un élève"/></div>{!readOnly&&<div className="row"><button className="btn" onClick={()=>setShowImport(true)}><Upload/>Importer CSV</button><button className="btn primary" onClick={()=>setShowAdd(true)}><Plus/>Ajouter un élève</button></div>}</div>
-    <div className="table-card"><table><thead><tr><th>Nom</th><th>Prénom</th><th>Groupe</th><th>Espace élève</th><th></th></tr></thead><tbody>{filtered.map(s=><tr key={s.id}><td>{s.last_name}</td><td>{s.first_name}</td><td>{s.group_name||'—'}</td><td><StatusBadge ok={s.access_enabled}>{s.access_enabled?'Activé':'Désactivé'}</StatusBadge></td><td className="right"><button className="btn small" onClick={()=>setSelected(s)}>Ouvrir <ChevronRight size={15}/></button></td></tr>)}</tbody></table>{filtered.length===0 && <div className="small-empty">Aucun élève.</div>}</div>
+    <div className="propilot-student-cards" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,300px),1fr))',gap:12}}>{filtered.map(s=><article key={s.id} style={{border:'1px solid #dce5f2',borderRadius:16,padding:'14px 16px',background:'#fff',display:'flex',flexDirection:'column',gap:8,minWidth:0}}><div style={{minWidth:0}}><strong style={{fontSize:16,color:'#152540'}}>{s.last_name} {s.first_name}</strong><div style={{fontSize:12,color:'#64748b',marginTop:3,overflowWrap:'anywhere'}}>{s.group_name||'Groupe non renseigné'}{s.email?' · '+s.email:''}</div></div><div style={{display:'flex',gap:7,flexWrap:'wrap'}}>{!readOnly&&<button className="btn small" onClick={()=>{setEditSelected(true);setSelected(s)}}><Pencil size={14}/> Modifier</button>}<button className="btn small" onClick={()=>{setEditSelected(false);setSelected(s)}}>Synthèse <ChevronRight size={14}/></button></div></article>)}</div>{filtered.length===0 && <div className="small-empty">Aucun élève.</div>}
     {!readOnly && showAdd && <AddStudentModal klass={klass} onClose={()=>setShowAdd(false)} onCreated={()=>{setShowAdd(false);load()}}/>}
     {!readOnly && showImport && <ImportStudentsModal klass={klass} onClose={()=>setShowImport(false)} onImported={()=>{setShowImport(false);load()}}/>}
   </>
@@ -146,7 +147,7 @@ function ImportStudentsModal({klass,onClose,onImported}) {
   return <Modal title="Importer des élèves (CSV)" onClose={onClose}><div className="stack"><p className="muted">Colonnes acceptées : <strong>nom ; prénom ; groupe ; email</strong>. Les doublons évidents sont ignorés avant l’import.</p><input type="file" accept=".csv,text/csv" onChange={e=>e.target.files?.[0]&&parseFile(e.target.files[0])}/>{error&&<div className="form-message">{error}</div>}{(preview.length>0||skipped.length>0)&&<><div className="preview-box"><strong>{preview.length} élève(s) à importer</strong>{preview.slice(0,6).map((r,i)=><span key={i}>{r.last_name} {r.first_name} {r.group_name?`— ${r.group_name}`:''}</span>)}{preview.length>6&&<span>…</span>}{skipped.length>0&&<span className="muted">{skipped.length} doublon(s) ignoré(s).</span>}</div><div className="modal-actions"><button className="btn ghost" onClick={onClose}>Annuler</button><button className="btn primary" disabled={busy||!preview.length} onClick={importRows}><Upload/>{busy?'Import…':`Importer ${preview.length}`}</button></div></>}</div></Modal>
 }
 
-function StudentDetail({ klass, student, readOnly=false, onBack }) {
+function StudentDetail({ klass, student, readOnly=false, initialEdit=false, onBack }) {
   const [tab,setTab]=useState('summary')
   const [settings,setSettings]=useState({note_enabled:true,note_mapping:{N:5,D:10,A:15,E:20},synthesis_mode:'latest_per_competency'})
   const [evaluations,setEvaluations]=useState([])
@@ -158,7 +159,7 @@ function StudentDetail({ klass, student, readOnly=false, onBack }) {
   const [documents,setDocuments]=useState([])
   const [ccfRequirements,setCcfRequirements]=useState([])
   const [finalPositions,setFinalPositions]=useState([])
-  const [editOpen,setEditOpen]=useState(false)
+  const [editOpen,setEditOpen]=useState(initialEdit)
   const [message,setMessage]=useState('')
 
   async function loadAll(){
