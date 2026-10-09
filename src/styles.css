@@ -287,3 +287,6 @@
 .ai-review-card>label,.ai-review-item{display:flex;align-items:flex-start;gap:9px;margin:7px 0}
 .ai-review-item span{display:flex;flex-direction:column;gap:3px}
 .ai-review-item small{color:#64748b}
+
+/* V14.1 — actions compactes des fiches élèves */
+.propilot-student-cards .btn.small{font-size:13px;padding:7px 11px;min-height:34px}
