@@ -323,3 +323,6 @@
 /* Autoévaluation élève : reprise compacte de la grille PFMP, historique conservé */
 .student-self-pfmp-style .pfmp-inline-group{margin-bottom:0}
 .student-self-pfmp-style .recent-row{padding:9px 0}
+
+/* Bouton Ajouter : icône unique et libellé parfaitement centrés */
+.reference-add-btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;gap:8px;white-space:nowrap}
