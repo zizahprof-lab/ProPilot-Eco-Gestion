@@ -12,6 +12,7 @@ import SetupWizard from './SetupWizard'
 import GuidedTour from './GuidedTour'
 import PersonalProgression from './PersonalProgression'
 import EvaluationMatrix from './EvaluationMatrix'
+import PfmpInline from './PfmpInline'
 import { detectCsvDelimiter, parseCsvText } from './csv'
 import './styles.css'
 
