@@ -7,7 +7,7 @@
     ...(modules.evaluations!==false?[['evaluation','Évaluations',ClipboardCheck]]:[]),
     ...(modules.pfmp!==false?[['pfmp','PFMP',BriefcaseBusiness]]:[]),
     ...(modules.synthesis!==false?[['synthesis','Synthèse compétences',BarChart3]]:[]),
-    ...(modules.ccf!==false?[['ccf','CCF',ListChecks]]:[]),
+    ...(klass.diploma_code!=='2MRC'&&modules.ccf!==false?[['ccf','CCF',ListChecks]]:[]),
     ...(modules.student_portal!==false?[['studentAccess','Accès élève',Eye]]:[]),
   ]
   const readOnly=!access.can_edit
@@ -47,7 +47,7 @@
         {tab==='progression' && <PersonalProgression klass={klass} readOnly={readOnly} addRequestToken={addRequestToken} onEvaluateContext={evaluateContext}/>} 
         {tab==='evaluation' && <QuickEvaluationTab klass={klass} readOnly={readOnly}/>} 
         {tab==='pfmp' && <PfmpClassTab klass={klass} readOnly={readOnly}/>} 
-        {tab==='ccf' && <CcfClassTab klass={klass} readOnly={readOnly}/>} 
+        {tab==='ccf' && klass.diploma_code!=='2MRC' && <CcfClassTab klass={klass} readOnly={readOnly}/>} 
         {tab==='studentAccess' && <StudentAccessTab klass={klass} readOnly={readOnly}/>} 
         {tab==='settings' && access.can_manage && <ClassSettingsTab klass={klass} onArchived={onBack} onClassUpdated={onClassUpdated}/>} 
       </div>
