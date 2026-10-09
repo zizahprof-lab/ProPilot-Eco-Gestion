@@ -56,6 +56,7 @@
 }
 
 function SynthesisCompetenciesTab({klass,readOnly=false}){
+  return <SynthesisV14 klass={klass} readOnly={readOnly}/>
   const [sub,setSub]=useState('summary')
   return <div className="reference-synthesis-shell"><div className="reference-secondary-tabs no-print"><button className={sub==='summary'?'active':''} onClick={()=>setSub('summary')}><BarChart3/>Synthèse de la classe</button><button className={sub==='positioning'?'active':''} onClick={()=>setSub('positioning')}><CheckCircle2/>Positionnement final</button></div>{sub==='summary'?<ClassSynthesisTab klass={klass}/>:<FinalPositioningTab klass={klass} readOnly={readOnly}/>}</div>
 }
