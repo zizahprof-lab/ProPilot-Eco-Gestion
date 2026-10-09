@@ -65,6 +65,7 @@ function StudentAccessTab({klass,readOnly=false}){
   const [students,setStudents]=useState([])
   const [selectedId,setSelectedId]=useState('')
   const [form,setForm]=useState(null)
+  const [emailDraft,setEmailDraft]=useState('')
   const [busy,setBusy]=useState(false)
   const [generating,setGenerating]=useState(false)
   const [issued,setIssued]=useState(null)
@@ -77,7 +78,7 @@ function StudentAccessTab({klass,readOnly=false}){
   }
   useEffect(()=>{load()},[klass.id])
   const selected=students.find(s=>s.id===selectedId)
-  useEffect(()=>{setIssued(null)},[selectedId])
+  useEffect(()=>{setIssued(null);setEmailDraft(selected?.email||'')},[selectedId,selected?.email])
   useEffect(()=>{setForm(selected?{access_enabled:!!selected.access_enabled,visibility:{...(selected.visibility||{})}}:null);setMessage('')},[selectedId,selected?.updated_at,selected?.access_enabled])
   function setVisibility(key){
     if(readOnly||!form)return
@@ -88,8 +89,11 @@ function StudentAccessTab({klass,readOnly=false}){
   }
   async function save(){
     if(!selected||!form||readOnly||busy)return
+    const email=emailDraft.trim().toLowerCase()
+    if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){setMessage('Saisissez une adresse e-mail valide.');return}
+    if(selected.student_user_id&&email!==String(selected.email||'').trim().toLowerCase()){setMessage('Adresse associée à un compte élève existant : contactez l’administrateur pour la modifier.');return}
     setBusy(true);setMessage('')
-    const {error}=await supabase.from('pp_students').update({access_enabled:form.access_enabled,visibility:form.visibility}).eq('id',selected.id).eq('class_id',klass.id)
+    const {error}=await supabase.from('pp_students').update({email:email||null,access_enabled:form.access_enabled,visibility:form.visibility}).eq('id',selected.id).eq('class_id',klass.id)
     setBusy(false)
     if(error){setMessage(toastError(error));return}
     setMessage('Droits de consultation enregistrés.')
@@ -97,7 +101,7 @@ function StudentAccessTab({klass,readOnly=false}){
   }
   async function generateCode(){
     if(!selected||readOnly||generating)return
-    if(!selected.email){setMessage('Renseignez une adresse e-mail dans la fiche élève.');return}
+    if(!selected.email){setMessage('Renseignez puis enregistrez l’adresse e-mail ci-dessus.');return}
     if(!form?.access_enabled||!selected.access_enabled){setMessage('Enregistrez d’abord l’activation de l’accès élève.');return}
     if(selected.student_user_id&&!window.confirm('Renouveler le code de connexion de cet élève ? L’ancien mot de passe ne permettra plus de nouvelles connexions.'))return
     setIssued(null);setMessage('');setGenerating(true)
@@ -113,16 +117,16 @@ function StudentAccessTab({klass,readOnly=false}){
     <div className="panel-head"><div><h2 style={{margin:0}}>Accès élève & visibilité</h2><p>Le professeur choisit ce que l’élève peut consulter. L’auto-évaluation peut rester accessible sans publier les commentaires ou les positionnements professeur.</p></div></div>
     <div className="access-v14-selectors"><label>Classe<input value={klass.name+' · '+klass.school_year} disabled/></label><label>Élève<select value={selectedId} onChange={e=>setSelectedId(e.target.value)}>{students.map(s=><option key={s.id} value={s.id}>{s.last_name} {s.first_name}</option>)}</select></label></div>
     {selected&&form?<div className="access-v14-detail"><h3>{selected.last_name} {selected.first_name}</h3>
-      <div className="access-v14-notice"><strong>Identifiant élève :</strong> {selected.email||<span style={{color:'#dc2626',fontWeight:700}}>Adresse e-mail à renseigner dans la fiche élève</span>}<p>L’élève se connecte avec ses identifiants personnels. Ses droits sont contrôlés côté serveur.</p></div>
+      <div className="access-v14-notice"><label style={{display:'block',fontWeight:700}}>Identifiant élève — Adresse e-mail<input type="email" placeholder="exemple@domaine.fr" value={emailDraft} disabled={readOnly||!!selected.student_user_id} onChange={e=>setEmailDraft(e.target.value)} style={{width:'100%',maxWidth:430,marginTop:7,background:'#fff'}}/></label>{!emailDraft.trim()&&<p style={{color:'#dc2626',fontWeight:700,marginTop:7}}>Adresse e-mail à renseigner pour activer la connexion élève.</p>}{emailDraft.trim()!==String(selected.email||'').trim()&&<p style={{color:'#b45309',marginTop:7}}>Enregistrez les droits pour sauvegarder cette adresse avant de générer un code.</p>}<p>L’élève se connecte avec ses identifiants personnels. Ses droits sont contrôlés côté serveur.</p></div>
       <label className="access-v14-toggle"><input type="checkbox" disabled={readOnly} checked={form.access_enabled} onChange={e=>setForm({...form,access_enabled:e.target.checked})}/> Autoriser l’accès élève</label>
       <h4>Ce que l’élève peut voir</h4>
       <div className="access-v14-modules">{modules.map(([key,label])=><label key={key}><input type="checkbox" disabled={readOnly} checked={!!form.visibility[key]} onChange={()=>setVisibility(key)}/>{label}</label>)}</div>
-      <div className="row wrap"><button className="btn primary" disabled={readOnly||busy} onClick={save}><Save size={16}/>{busy?'Enregistrement…':'Enregistrer les droits'}</button><button className="btn" type="button" disabled={readOnly||generating||!selected.email||!selected.access_enabled} onClick={generateCode}><ShieldCheck size={16}/>{generating?'Génération…':selected.student_user_id?'Renouveler le code élève':'Générer le code élève'}</button></div>
+      <div className="row wrap"><button className="btn primary" disabled={readOnly||busy} onClick={save}><Save size={16}/>{busy?'Enregistrement…':'Enregistrer les droits'}</button><button className="btn" type="button" disabled={readOnly||generating||!selected.email||!selected.access_enabled||emailDraft.trim().toLowerCase()!==String(selected.email||'').trim().toLowerCase()} onClick={generateCode}><ShieldCheck size={16}/>{generating?'Génération…':selected.student_user_id?'Renouveler le code élève':'Générer le code élève'}</button></div>
       {issued&&<div className="access-v14-notice" role="status"><strong>Identifiants à remettre à l’élève</strong><p>Adresse : {issued.email}</p><p>Code de connexion : <code style={{fontSize:18,fontWeight:800,letterSpacing:1}}>{issued.code}</code></p><button className="btn small" type="button" onClick={()=>navigator.clipboard?.writeText(issued.code)}>Copier le code</button><p>Ce code n’est affiché qu’une seule fois. Il remplace le mot de passe lors de la connexion à ProPilot.</p></div>}
       <div className="access-v14-notice">L’élève se connecte avec son adresse e-mail et le code communiqué (dans le champ « Mot de passe »). En cas de perte, générez un nouveau code.</div>
     </div>:<div className="small-empty">Aucun élève dans cette classe.</div>}
     {message&&<div className="form-message" role="status">{message}</div>}
-    <p style={{fontSize:12,color:"#64748b",margin:"12px 2px 0",lineHeight:1.5}}><strong>À suivre dans cet ordre :</strong> 1. Renseigner une adresse e-mail dans la fiche élève → 2. Autoriser l’accès élève → 3. Enregistrer les droits → 4. Générer le code élève.</p>
+    <p style={{fontSize:12,color:"#64748b",margin:"12px 2px 0",lineHeight:1.5}}><strong>À suivre dans cet ordre :</strong> 1. Renseigner l’adresse e-mail ci-dessus → 2. Autoriser l’accès élève → 3. Enregistrer les droits → 4. Générer le code élève.</p>
   </section>
 }
 
