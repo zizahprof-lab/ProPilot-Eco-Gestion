@@ -380,7 +380,10 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
     </div>
 
     <div className="personal-progression-summary" aria-label="Bilan pédagogique après la progression">
-      <h3>Tableau de bord de la progression</h3>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',marginBottom:10}}>
+        <h3 style={{margin:0}}>Tableau de bord de la progression</h3>
+        <button type="button" onClick={()=>{setPrintCycle(cycleView==='cycle'?'premiere':cycleView);setPrintOpen(true)}} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',gap:9,background:'#075cf7',color:'#fff',border:'2px solid #075cf7',borderRadius:11,padding:'12px 19px',fontSize:15,fontWeight:800,cursor:'pointer',boxShadow:'0 4px 12px #075cf733'}}><span aria-hidden="true">🖨</span> Imprimer la progression</button>
+      </div>
       <div className="personal-summary-side-by-side">
       <section className="personal-summary-quality" style={{background:'#fff',border:'1px solid #dbe4ef',borderRadius:18,padding:20,margin:0}} aria-label="Vue annuelle de la progression">
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:16,flexWrap:'wrap'}}>
