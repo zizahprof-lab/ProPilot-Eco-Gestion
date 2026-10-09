@@ -314,7 +314,7 @@ function CcfClassTab({klass, readOnly=false}) {
       supabase.from('pp_students').select('id,last_name,first_name,group_name').eq('class_id',klass.id).order('last_name'),
       supabase.from('pp_ccf_document_requirements').select('*').eq('class_id',klass.id).eq('active',true).order('exam_code').order('sort_order')
     ])
-    const examRows=e.data||[]
+    const examRows=(e.data||[]).filter(ex=>klass.diploma_code!=='ACCUEIL'||['E31','E32'].includes(ex.code))
     setExams(examRows);setStudents(s.data||[]);setRequirements(q.data||[])
     const trackedRows=examRows.filter(x=>['ccf','mixte'].includes(x.assessment_mode))
     setReqForm(f=>({...f,exam_code:trackedRows.some(x=>x.code===f.exam_code)?f.exam_code:(trackedRows[0]?.code||'')}))
