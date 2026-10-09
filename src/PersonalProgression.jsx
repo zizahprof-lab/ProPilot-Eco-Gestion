@@ -527,6 +527,7 @@ function ProgressionEditor({klass,periods,teacherOptions=[],teacherMembers=[],cu
         problematic:analysis.suggested_problematic||analysis.problematic||prev.problematic,
         activities:Array.isArray(proposedActivities)?proposedActivities.join('\n'):(proposedActivities||prev.activities),
         competencyCodes:unique([...prev.competencyCodes,...proposedCodes]),
+        econ_law_links:unique([...prev.econ_law_links,...economySelections.map(v=>v.module_code).filter(code=>econ.some(x=>x.code===code))]),
         behavioursText:proposedLines('behaviours')||prev.behavioursText,
         knowledgeText:proposedLines('knowledge')||prev.knowledgeText,
         expectedText:proposedLines('expected_results')||prev.expectedText,
@@ -540,8 +541,10 @@ function ProgressionEditor({klass,periods,teacherOptions=[],teacherMembers=[],cu
   function applyAiSuggestion(){
     // Teacher validation must not overwrite edits made after automatic prefill.
     const selectedCodes=(aiSuggestion?.selections||[]).filter((v,i)=>aiChecked('s'+i)).map(v=>v.competence);
+    const selectedEcon=(aiSuggestion?.economy_law_selections||[]).filter((v,i)=>aiChecked('ed'+i)).map(v=>v.module_code).filter(code=>econ.some(x=>x.code===code));
+    const rejectedEcon=(aiSuggestion?.economy_law_selections||[]).filter((v,i)=>!aiChecked('ed'+i)).map(v=>v.module_code);
     const rejectedCodes=(aiSuggestion?.selections||[]).filter((v,i)=>!aiChecked('s'+i)).map(v=>v.competence);
-    setF(prev=>({...prev,competencyCodes:unique([...prev.competencyCodes.filter(code=>!rejectedCodes.includes(code)),...selectedCodes])}));
+    setF(prev=>({...prev,competencyCodes:unique([...prev.competencyCodes.filter(code=>!rejectedCodes.includes(code)),...selectedCodes]),econ_law_links:unique([...prev.econ_law_links.filter(code=>!rejectedEcon.includes(code)),...selectedEcon])}));
     setAiSuggestion(null);
     setMessage('Sélection validée. Vos modifications manuelles sont conservées ; vous pouvez encore corriger avant d’enregistrer.');
   }
