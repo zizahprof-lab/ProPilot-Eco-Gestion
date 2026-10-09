@@ -261,6 +261,18 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-progression-summary .personal-kpi span{font-size:12px!important;line-height:1.25}
       .personal-progression-summary .personal-kpi strong{font-size:21px!important;line-height:1.1;white-space:nowrap}
       @media(max-width:600px){.personal-progression-summary .personal-kpi{flex-basis:calc(50% - 8px);padding:8px!important}.personal-progression-summary .personal-kpi strong{font-size:18px!important}}
+      /* Indicateurs KPI compacts : largeur ajustée au contenu, sans étirement */
+      .personal-progression-summary .personal-kpis-compact{display:flex!important;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px!important;margin:12px auto 16px!important;width:fit-content;max-width:100%}
+      .personal-progression-summary .personal-kpis-compact .personal-kpi{flex:0 0 auto!important;width:auto!important;min-width:0!important;min-height:58px!important;padding:9px 12px!important;display:flex!important;justify-content:flex-start!important;gap:10px!important;border-radius:12px!important}
+      .personal-kpis-compact .kpi-icon{width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex:0 0 38px;border-radius:10px;font-size:23px;font-weight:800}
+      .personal-kpis-compact .kpi-copy{display:flex;flex-direction:column;gap:2px;min-width:0;border-left:2px solid currentColor;padding-left:10px}
+      .personal-kpis-compact .kpi-copy>span{font-size:12px!important;white-space:nowrap;color:#475569}
+      .personal-kpis-compact .kpi-copy>strong{font-size:22px!important;line-height:1.1}
+      .personal-kpis-compact .kpi-blue{background:#f2f7ff!important;border-color:#c9dcff!important;color:#075fe2}.personal-kpis-compact .kpi-blue .kpi-icon{background:#deebff}
+      .personal-kpis-compact .kpi-orange{background:#fff9f2!important;border-color:#ffe1bd!important;color:#e87505}.personal-kpis-compact .kpi-orange .kpi-icon{background:#ffead5}
+      .personal-kpis-compact .kpi-green{background:#f2fbf6!important;border-color:#c8edd9!important;color:#07864b}.personal-kpis-compact .kpi-green .kpi-icon{background:#ddf6e8}
+      .personal-kpis-compact .kpi-red{background:#fff5f7!important;border-color:#ffd2da!important;color:#d51635}.personal-kpis-compact .kpi-red .kpi-icon{background:#ffe4e9}
+      @media(max-width:600px){.personal-progression-summary .personal-kpis-compact{justify-content:flex-start}.personal-progression-summary .personal-kpis-compact .personal-kpi{flex:1 1 45%!important}.personal-kpis-compact .kpi-copy>span{white-space:normal}}
       /* Tableau de bord dense, contrasté et lumineux */
       .personal-v14-dashboard{padding:13px 15px;margin:12px 0 16px;border-radius:16px;background:#f6f9ff}
       .personal-v14-dashboard-title{margin-bottom:10px;align-items:center}
@@ -416,11 +428,11 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       </div>
     <div className="personal-legend">{referenceGroups.map(g=>{const style=GROUP_STYLE[g.code]||{personal:g.code,color:'#94A3B8'};return <span key={g.code} style={{'--c':style.color}}><b>{style.personal}</b> · {g.label}</span>})}</div>
 
-    <div className="personal-kpis">
-      <div className="personal-kpi"><span>Compétences programmées</span><strong>{visibleCovered.size} / {totalTop}</strong></div>
-      <div className="personal-kpi"><span>Contextes / activités</span><strong>{visible.length}</strong></div>
-      <div className="personal-kpi"><span>Éléments terminés</span><strong>{visible.filter(i=>i.status==='Terminé').length}</strong></div>
-      <div className="personal-kpi"><span>À ajuster</span><strong>{visible.filter(i=>i.status==='À ajuster').length}</strong></div>
+    <div className="personal-kpis personal-kpis-compact" aria-label="Indicateurs de la progression">
+      <div className="personal-kpi kpi-blue"><span className="kpi-icon" aria-hidden="true">▣</span><div className="kpi-copy"><span>Compétences programmées</span><strong>{visibleCovered.size} / {totalTop}</strong></div></div>
+      <div className="personal-kpi kpi-orange"><span className="kpi-icon" aria-hidden="true">▤</span><div className="kpi-copy"><span>Contextes / activités</span><strong>{visible.length}</strong></div></div>
+      <div className="personal-kpi kpi-green"><span className="kpi-icon" aria-hidden="true">✓</span><div className="kpi-copy"><span>Éléments terminés</span><strong>{visible.filter(i=>i.status==='Terminé').length}</strong></div></div>
+      <div className="personal-kpi kpi-red"><span className="kpi-icon" aria-hidden="true">⚠</span><div className="kpi-copy"><span>À ajuster</span><strong>{visible.filter(i=>i.status==='À ajuster').length}</strong></div></div>
     </div>
 
     <section className="personal-v14-dashboard" aria-label="Tableau de bord de progression V14.1">
