@@ -122,6 +122,7 @@ function StudentAccessTab({klass,readOnly=false}){
       <div className="access-v14-notice">L’élève se connecte avec son adresse e-mail et le code communiqué (dans le champ « Mot de passe »). En cas de perte, générez un nouveau code.</div>
     </div>:<div className="small-empty">Aucun élève dans cette classe.</div>}
     {message&&<div className="form-message" role="status">{message}</div>}
+    <p style={{fontSize:12,color:"#64748b",margin:"12px 2px 0",lineHeight:1.5}}><strong>À suivre dans cet ordre :</strong> 1. Renseigner une adresse e-mail dans la fiche élève → 2. Autoriser l’accès élève → 3. Enregistrer les droits → 4. Générer le code élève.</p>
   </section>
 }
 
