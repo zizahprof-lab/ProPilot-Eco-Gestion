@@ -290,3 +290,15 @@
 
 /* V14.1 — actions compactes des fiches élèves */
 .propilot-student-cards .btn.small{font-size:13px;padding:7px 11px;min-height:34px}
+
+/* Débrief PFMP V14.1 — compétences GC : grille compacte */
+.pfmp-gc-positioning{background:#f8fbff;border:1px solid #dbe7f5;border-radius:14px;padding:12px;min-width:0}
+.pfmp-gc-positioning h3{margin:0 0 4px;font-size:17px;color:#15345e}
+.pfmp-gc-positioning p{margin:0 0 10px;color:#64748b;font-size:12px}
+.pfmp-gc-row{display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:12px;align-items:center;border-top:1px solid #e4ebf5;padding:9px 0;font-size:13px}
+.pfmp-gc-row b{color:#075fe2}
+.pfmp-gc-levels{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.pfmp-level{min-width:38px;min-height:34px;padding:5px 8px;border:1px solid #d0daea;border-radius:8px;background:#fff;font-weight:800;cursor:pointer}
+.pfmp-level-N{background:#ff343b;color:white}.pfmp-level-D{background:#ffdf19;color:#262626}.pfmp-level-A{background:#00bc58;color:white}.pfmp-level-E{background:#4e842d;color:white}.pfmp-level-NE{background:#eff3f9;color:#263959}
+.pfmp-level[aria-pressed="true"]{box-shadow:inset 0 0 0 3px #14213d,0 0 0 2px #fff}
+@media(max-width:700px){.pfmp-gc-row{grid-template-columns:1fr}.pfmp-gc-levels{justify-content:flex-start}}
