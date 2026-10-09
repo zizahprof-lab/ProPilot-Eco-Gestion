@@ -42,7 +42,7 @@
       </nav>
       <div className="reference-class-body">
         <div className="reference-class-meta no-print"><button className="reference-back" onClick={onBack}><ArrowLeft/>Mes classes</button>{readOnly&&<span className="badge muted"><Eye size={14}/> Lecture seule</span>}{access.member_role&&<span className="badge info">{access.is_primary_owner?'Propriétaire principal':({owner:'Co-propriétaire',editor:'Éditeur',viewer:'Lecture seule'}[access.member_role]||access.member_role)}</span>}</div>
-        {tab==='students' && <StudentsTab klass={klass} readOnly={readOnly}/>} 
+        {tab==='students' && <StudentsTab klass={klass} readOnly={readOnly} isPrimaryOwner={access.is_primary_owner} onClassDeleted={onBack}/>} 
         {tab==='synthesis' && <SynthesisCompetenciesTab klass={klass} readOnly={readOnly}/>} 
         {tab==='progression' && <PersonalProgression klass={klass} readOnly={readOnly} addRequestToken={addRequestToken} onEvaluateContext={evaluateContext}/>} 
         {tab==='evaluation' && <QuickEvaluationTab klass={klass} readOnly={readOnly}/>} 
@@ -71,19 +71,31 @@ function StudentAccessTab({klass,readOnly=false}){
   return <div className="panel reference-access-panel"><div className="panel-head"><div><h3>Accès élève</h3><p>Activez l’espace élève et choisissez précisément ce que chacun peut consulter.</p></div><div className="search"><Search/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher un élève"/></div></div><div className="reference-access-grid">{filtered.map(s=><div className="reference-access-card" key={s.id}><div><strong>{s.last_name} {s.first_name}</strong><span>{s.email||'Aucune adresse e-mail'} {s.group_name?`• ${s.group_name}`:''}</span></div><div className="reference-access-actions"><button className={s.access_enabled?'access-toggle on':'access-toggle'} disabled={readOnly} onClick={()=>toggle(s)}>{s.access_enabled?<Eye/>:<EyeOff/>}{s.access_enabled?'Accès activé':'Accès désactivé'}</button><button className="btn small" onClick={()=>setSelected(s)}>{readOnly?'Voir':'Configurer'}</button></div><div className="access-visibility-chips">{[['progression','Progression'],['self_assessment','Autoévaluation'],['ccf','CCF'],['pfmp','PFMP'],['reports','Rapports'],['synthesis','Synthèse'],['teacher_positions','Positionnement'],['teacher_comments','Commentaires']].filter(([k])=>s.visibility?.[k]).map(([k,l])=><span key={k}>{l}</span>)}</div></div>)}{!filtered.length&&<div className="small-empty">Aucun élève.</div>}</div>{selected&&<EditStudentModal student={selected} readOnly={readOnly} onClose={()=>setSelected(null)} onSaved={()=>{setSelected(null);load()}}/>}</div>
 }
 
-function StudentsTab({ klass, readOnly=false }) {
+function StudentsTab({ klass, readOnly=false, isPrimaryOwner=false, onClassDeleted }) {
   const [students,setStudents]=useState([])
   const [q,setQ]=useState('')
   const [showAdd,setShowAdd]=useState(false)
   const [showImport,setShowImport]=useState(false)
   const [selected,setSelected]=useState(null)
   const [editSelected,setEditSelected]=useState(false)
+  const [deletingClass,setDeletingClass]=useState(false)
+  const [deleteError,setDeleteError]=useState('')
+  async function deleteClass(){
+    if(!isPrimaryOwner||deletingClass)return
+    const confirmation=window.prompt(`Suppression définitive de la classe ${klass.name} et de ses données associées. Cette action est irréversible. Pour confirmer, saisissez exactement : ${klass.name}`)
+    if(confirmation!==klass.name)return
+    setDeletingClass(true);setDeleteError('')
+    const {error}=await supabase.from('pp_classes').delete().eq('id',klass.id).eq('owner_id',klass.owner_id)
+    setDeletingClass(false)
+    if(error){setDeleteError(toastError(error));return}
+    onClassDeleted?.()
+  }
   async function load() { const {data}=await supabase.from('pp_students').select('*').eq('class_id',klass.id).order('last_name'); setStudents(data||[]) }
   useEffect(()=>{load()},[klass.id])
   const filtered=students.filter(s=>`${s.last_name} ${s.first_name}`.toLowerCase().includes(q.toLowerCase()))
   if (selected) return <StudentDetail klass={klass} student={selected} readOnly={readOnly} initialEdit={editSelected} onBack={()=>{setSelected(null);setEditSelected(false);load()}} />
   return <>
-    <div className="toolbar wrap"><div className="search"><Search size={18}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher un élève"/></div>{!readOnly&&<div className="row"><button className="btn" onClick={()=>setShowImport(true)}><Upload/>Importer CSV</button><button className="btn primary" onClick={()=>setShowAdd(true)}><Plus/>Ajouter un élève</button></div>}</div>
+    <div className="toolbar wrap"><div className="search"><Search size={18}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher un élève"/></div><div className="row">{!readOnly&&<><button className="btn" onClick={()=>setShowImport(true)}><Upload/>Importer CSV</button><button className="btn primary" onClick={()=>setShowAdd(true)}><Plus/>Ajouter un élève</button></>}{isPrimaryOwner&&<button type="button" className="btn danger" onClick={deleteClass} disabled={deletingClass} style={{borderColor:"#ff8d9d",background:"#fff4f5",color:"#c90037",fontWeight:800}}><Trash2 size={16}/>{deletingClass?"Suppression…":"Supprimer la classe"}</button>}</div></div>{deleteError&&<div role="alert" className="error-box">{deleteError}</div>}
     <div className="propilot-student-cards" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,300px),1fr))',gap:12}}>{filtered.map(s=><article key={s.id} style={{border:'1px solid #dce5f2',borderRadius:16,padding:'14px 16px',background:'#fff',display:'flex',flexDirection:'column',gap:8,minWidth:0}}><div style={{minWidth:0}}><strong style={{fontSize:16,color:'#152540'}}>{s.last_name} {s.first_name}</strong><div style={{fontSize:12,color:'#64748b',marginTop:3,overflowWrap:'anywhere'}}>{s.group_name||'Groupe non renseigné'}{s.email?' · '+s.email:''}</div></div><div style={{display:'flex',gap:7,flexWrap:'wrap'}}>{!readOnly&&<button className="btn small" onClick={()=>{setEditSelected(true);setSelected(s)}}><Pencil size={14}/> Modifier</button>}<button className="btn small" onClick={()=>{setEditSelected(false);setSelected(s)}}>Synthèse <ChevronRight size={14}/></button></div></article>)}</div>{filtered.length===0 && <div className="small-empty">Aucun élève.</div>}
     {!readOnly && showAdd && <AddStudentModal klass={klass} onClose={()=>setShowAdd(false)} onCreated={()=>{setShowAdd(false);load()}}/>}
     {!readOnly && showImport && <ImportStudentsModal klass={klass} onClose={()=>setShowImport(false)} onImported={()=>{setShowImport(false);load()}}/>}
