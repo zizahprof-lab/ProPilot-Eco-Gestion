@@ -585,6 +585,27 @@ function ProgressionEditor({klass,periods,teacherOptions=[],initial=null,onClose
 .progression-editor-modal .ai-review-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;line-height:1.55;font-weight:400}
 .progression-editor-modal .ai-review-item:hover{background:#eff6ff}
 .progression-editor-modal .ai-review-item input{flex-shrink:0;margin-top:5px}
+
+/* Densité professionnelle : préserver la charte graphique et supprimer les espaces inutiles */
+.progression-editor-modal .modal-head{padding:14px 22px 12px;margin-bottom:0;border-bottom:1px solid #e3eaf4}
+.progression-editor-modal .modal-head h3{font-size:25px;line-height:1.2;margin:0;font-weight:750}
+.progression-editor-modal .progression-editor-form{padding:0 4px 10px}
+.progression-editor-modal .editor-section{padding:14px 18px;margin:10px 0;border-radius:14px}
+.progression-editor-modal .editor-section>h4,.progression-editor-modal .editor-section-title h4{font-size:17px;margin:0 0 10px;font-weight:750}
+.progression-editor-modal .editor-section-title{margin-bottom:10px;gap:10px}
+.progression-editor-modal .form-grid{gap:12px 16px}
+.progression-editor-modal .form-grid>label{gap:5px;line-height:1.3}
+.progression-editor-modal .form-grid textarea{min-height:92px;padding:10px 12px;line-height:1.5}
+.progression-editor-modal .pedag-checklist{padding:11px 14px;margin:10px 0;border-radius:12px}
+.progression-editor-modal .pedag-checklist-grid{gap:7px 16px}
+.progression-editor-modal .ai-proposal{margin-top:12px;padding:14px;border-radius:13px}
+.progression-editor-modal .ai-review-card{padding:12px 14px;margin:9px 0;gap:8px}
+.progression-editor-modal .file-drop{min-height:0!important;padding:14px 16px!important;gap:6px!important;border-radius:13px!important}
+.progression-editor-modal .file-drop>svg{width:23px;height:23px}
+.progression-editor-modal .file-drop small{font-size:12px}
+.progression-editor-modal .attachment-list{margin:7px 0}
+.progression-editor-modal .modal-actions{padding:12px 8px;gap:8px}
+@media(max-width:720px){.progression-editor-modal .editor-section{padding:12px}.progression-editor-modal .modal-head h3{font-size:21px}}
 @media(max-width:720px){.progression-editor-modal .form-grid{grid-template-columns:1fr}.progression-editor-modal .editor-section{padding:16px}}
 `}</style><div className="modal-head"><div><span className="eyebrow">Progression personnelle</span><h3>{isEditing?'Modifier':'Ajouter'} un contexte / évènement</h3></div><button onClick={onClose}><X/></button></div><form onSubmit={submit} className="progression-editor-form">
     <div className="editor-section"><h4>1. Importer le cours ou le document</h4>{existingFiles.length>0&&<div className="attachment-list">{existingFiles.map(a=><div key={a.id}><FileText/><span>{a.file_name}</span><button type="button" className="icon-btn danger-text" onClick={()=>removeFile(a)}><Trash2/></button></div>)}</div>}<label className="file-drop"><Upload/><span>Ajouter des fichiers au contexte</span><input type="file" multiple onChange={e=>{const chosen=[...e.target.files];setFiles(chosen);if(chosen.length)analyzeDocument(chosen[0])}}/><small>{files.length?`${files.length} nouveau(x) fichier(s) sélectionné(s)`:'PDF, Word, Excel, PowerPoint, images…'}</small></label></div>
