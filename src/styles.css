@@ -330,7 +330,7 @@
 
 /* ProPilot – updated accessible landing-page identity */
 .auth-brand{padding:clamp(32px,5vw,80px);align-items:stretch;min-width:0}
-.auth-brand>.brand-badge{width:76px;height:76px;border-radius:20px;background:rgba(255,255,255,.1)}
+.auth-brand>.brand-badge{width:76px;height:76px;border-radius:20px;background:#f8fbff;box-shadow:0 4px 20px rgba(3,13,43,.18)}
 .brand-badge img{display:block;width:60px;height:60px;object-fit:contain}
 .auth-brand h1{font-size:clamp(30px,3.1vw,48px);line-height:1.12;letter-spacing:-.035em;margin:22px 0 14px}
 .auth-brand .auth-tagline{font-size:clamp(17px,1.35vw,20px);font-weight:700;line-height:1.45;color:#fff;margin:0 0 5px;max-width:750px}
