@@ -333,7 +333,7 @@ function AuthScreen() {
   return (
     <div className="auth-layout">
       <div className="auth-brand" style={{position:"relative"}}>
-        <div className="brand-badge"><img src={`${import.meta.env.BASE_URL}propilot-approved.webp`} alt="Logo ProPilot : boussole et diplôme" width="58" height="58" /></div>
+        <div className="brand-badge"><img src={`${import.meta.env.BASE_URL}propilot-logo.svg`} alt="Logo ProPilot : boussole et diplôme" width="58" height="58" /></div>
         <h1>ProPilot <span>Éco-Gestion</span></h1>
         <p className="auth-tagline">Votre espace de suivi pédagogique en économie-gestion.</p>
         <p className="auth-description">Une plateforme dédiée au pilotage des compétences, des évaluations et des parcours des élèves, du CAP au Bac professionnel.</p>
