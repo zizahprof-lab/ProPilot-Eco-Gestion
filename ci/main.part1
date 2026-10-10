@@ -295,7 +295,7 @@ function Splash() {
 function AuthScreen() {
   const [mode, setMode] = useState('login')
   const accountType = 'teacher'
-  const [loginRole,setLoginRole]=useState('student')
+  const [loginRole,setLoginRole]=useState('teacher')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
