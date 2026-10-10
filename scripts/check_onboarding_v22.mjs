@@ -7,6 +7,7 @@ const css=fs.readFileSync(new URL('../src/styles.css',import.meta.url),'utf8')
 
 const checks=[
   ['assistant en 6 étapes', setup.includes("Étape {step} sur 6")],
+  ['nouvelle classe : nouveau brouillon à étape 1',setup.includes('setStep(1)')&&!setup.includes(".is('finalized_class_id',null).order('updated_at'")],
   ['anciens brouillons étapes supérieures à 6 corrigés sans perte de données',setup.includes('Math.min(6,Math.max(1,Number(existing.step_no)||1))')],
   ['organisation solo/binôme/trinôme', setup.includes("['solo','Seul']") && setup.includes("['binome','Binôme']") && setup.includes("['trinome','Trinôme']")],
   ['adresse académique obligatoire pour les collaborateurs', setup.includes('@ac-aix-marseille.fr')],
