@@ -526,7 +526,16 @@ function StudentOwnDocuments({student,documents,onRefresh}) {
 
 function Modal({title,onClose,children}) { return <div className="modal-backdrop" onMouseDown={onClose}><div className="modal" onMouseDown={e=>e.stopPropagation()}><div className="modal-head"><h3>{title}</h3><button onClick={onClose}><X/></button></div>{children}</div></div> }
 
-createRoot(document.getElementById('root')).render(<React.StrictMode><App/></React.StrictMode>)
+class ProPilotErrorBoundary extends React.Component {
+ constructor(props){super(props);this.state={hasError:false}}
+ static getDerivedStateFromError(){return {hasError:true}}
+ componentDidCatch(error,info){console.error('ProPilot interface error',error,info)}
+ render(){
+  if(this.state.hasError)return <main style={{minHeight:'100vh',display:'grid',placeItems:'center',background:'#f5f7fc',padding:24}}><section style={{maxWidth:510,background:'#fff',padding:32,border:'1px solid #d7e2f1',borderRadius:18,fontFamily:'system-ui',color:'#17243e'}}><h1 style={{fontSize:23}}>ProPilot a rencontré un problème d’affichage</h1><p>Vos informations enregistrées sont conservées. Actualisez la page pour reprendre votre session.</p><button type="button" onClick={()=>window.location.reload()} style={{background:'#2563eb',color:'#fff',border:0,borderRadius:9,padding:'12px 18px',cursor:'pointer'}}>Actualiser ProPilot</button></section></main>;
+  return this.props.children
+ }
+}
+createRoot(document.getElementById('root')).render(<React.StrictMode><ProPilotErrorBoundary><App/></ProPilotErrorBoundary></React.StrictMode>)
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(()=>{}))
