@@ -276,10 +276,10 @@ export default function PersonalProgression({klass,readOnly=false,onEvaluateCont
       .personal-kpis-compact .kpi-copy{display:flex;flex-direction:column;gap:2px;min-width:0;border-left:2px solid currentColor;padding-left:10px}
       .personal-kpis-compact .kpi-copy>span{font-size:12px!important;white-space:nowrap;color:#475569}
       .personal-kpis-compact .kpi-copy>strong{font-size:22px!important;line-height:1.1}
-      .personal-kpis-compact .kpi-blue{background:#f2f7ff!important;border-color:#c9dcff!important;color:#075fe2}.personal-kpis-compact .kpi-blue .kpi-icon{background:#deebff}
-      .personal-kpis-compact .kpi-orange{background:#fff9f2!important;border-color:#ffe1bd!important;color:#e87505}.personal-kpis-compact .kpi-orange .kpi-icon{background:#ffead5}
-      .personal-kpis-compact .kpi-green{background:#f2fbf6!important;border-color:#c8edd9!important;color:#07864b}.personal-kpis-compact .kpi-green .kpi-icon{background:#ddf6e8}
-      .personal-kpis-compact .kpi-red{background:#fff5f7!important;border-color:#ffd2da!important;color:#d51635}.personal-kpis-compact .kpi-red .kpi-icon{background:#ffe4e9}
+      .personal-kpis-compact .kpi-blue{background:#ffffff!important;border-color:#c9dcff!important;color:#075fe2}.personal-kpis-compact .kpi-blue .kpi-icon{background:#deebff}
+      .personal-kpis-compact .kpi-orange{background:#ffffff!important;border-color:#ffe1bd!important;color:#e87505}.personal-kpis-compact .kpi-orange .kpi-icon{background:#ffead5}
+      .personal-kpis-compact .kpi-green{background:#ffffff!important;border-color:#c8edd9!important;color:#07864b}.personal-kpis-compact .kpi-green .kpi-icon{background:#ddf6e8}
+      .personal-kpis-compact .kpi-red{background:#ffffff!important;border-color:#ffd2da!important;color:#d51635}.personal-kpis-compact .kpi-red .kpi-icon{background:#ffe4e9}
       @media(max-width:600px){.personal-progression-summary .personal-kpis-compact{justify-content:flex-start}.personal-progression-summary .personal-kpis-compact .personal-kpi{flex:1 1 45%!important}.personal-kpis-compact .kpi-copy>span{white-space:normal}}
       /* Tableau de bord dense, contrasté et lumineux */
       .personal-v14-dashboard{padding:13px 15px;margin:12px 0 16px;border-radius:16px;background:#f6f9ff}
