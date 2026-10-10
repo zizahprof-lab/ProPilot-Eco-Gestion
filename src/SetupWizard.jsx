@@ -25,6 +25,7 @@ export default function SetupWizard({onClose,onCreated}){
   useEffect(()=>{if(draft?.diploma_code)loadReference(draft.diploma_code)},[draft?.diploma_code])
 
   async function init(){
+    setMessage('')
     try {
       const {data:{user},error:authError}=await supabase.auth.getUser()
       if(authError||!user)throw new Error('Session expirée. Reconnectez-vous.')
