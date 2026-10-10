@@ -32,7 +32,7 @@ export default function SetupWizard({onClose,onCreated}){
       supabase.from('pp_class_setup_drafts').select('*').eq('owner_id',user.id).is('finalized_class_id',null).order('updated_at',{ascending:false}).limit(1).maybeSingle()
     ])
     setPacks(packsData||[])
-    if(existing){setDraft({...existing,school_year:existing.school_year||'2026-2027'});setStep(existing.step_no||1);return}
+    if(existing){setDraft({...existing,school_year:existing.school_year||'2026-2027'});setStep(Math.min(6,Math.max(1,Number(existing.step_no)||1)));return}
     const {data:newDraft,error}=await supabase.from('pp_class_setup_drafts').insert({owner_id:user.id,organization_mode:'solo',collaborators:[],enabled_modules:DEFAULT_MODULES,pfmp_periods:[],school_year:'2026-2027',step_no:1}).select().single()
     if(error)setMessage(error.message);else setDraft(newDraft)
   }
