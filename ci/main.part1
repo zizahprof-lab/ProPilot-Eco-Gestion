@@ -404,12 +404,15 @@ function StudentAccessSuspended({state,onSignOut,onRefresh}) {
 }
 
 function PendingApproval({ profile, onSignOut, onRefresh }) {
+  const status=profile.access_status||'pending'
+  const title=status==='rejected'?'Demande d’accès refusée':status==='suspended'?'Compte suspendu':"Compte en attente d'approbation"
+  const description=status==='rejected'?"Votre demande d'accès à ProPilot 2026 n'a pas été acceptée. Contactez l'administrateur pour toute question.":status==='suspended'?"Votre accès à ProPilot 2026 est temporairement suspendu. Contactez l'administrateur.":"Votre demande d'accès a bien été enregistrée. Un administrateur doit approuver votre compte avant l'accès aux classes."
   return (
     <div className="center-screen card-stack">
       <Clock3 size={48}/>
-      <h2>Compte en attente d'approbation</h2>
+      <h2>{title}</h2>
       <p>{profile.display_name || profile.email}</p>
-      <p>Un administrateur doit valider ce compte avant l'accès aux classes.</p>
+      <p>{description}</p>
       <div className="row"><button className="btn" onClick={onRefresh}>Actualiser</button><button className="btn ghost" onClick={onSignOut}>Se déconnecter</button></div>
     </div>
   )
