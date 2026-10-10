@@ -352,3 +352,7 @@
 @media(max-width:1180px){.auth-layout{grid-template-columns:1fr 1fr}.auth-brand{padding:32px}.auth-curricula{padding:14px}.auth-curricula ul{gap:9px 13px}.auth-curricula li{font-size:12px}}
 @media(max-width:900px){.auth-layout{grid-template-columns:1fr}.auth-brand{padding:42px 24px 52px}.auth-curricula li{font-size:14px}.auth-card{margin:32px 0}}
 @media(max-width:520px){.auth-brand{padding:26px 20px 48px}.auth-brand h1{font-size:31px}.auth-curricula ul{grid-template-columns:1fr;gap:9px}.auth-curricula li:nth-child(n){grid-column:auto;grid-row:auto}.auth-brand .auth-tagline{font-size:17px}.auth-brand .auth-description{font-size:15px}}
+
+/* Use the approved raster artwork itself, without redraw or recoloring */
+.auth-brand>.brand-badge{width:76px;height:76px;padding:0;background:transparent;overflow:hidden;border-radius:19px;box-shadow:none}
+.auth-brand>.brand-badge img{width:100%;height:100%;object-fit:cover}
