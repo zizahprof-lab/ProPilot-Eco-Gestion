@@ -318,7 +318,7 @@ function AuthScreen() {
         options: { emailRedirectTo: new URL(import.meta.env.BASE_URL, window.location.origin).href, data: { account_type: accountType, display_name: displayName.trim() } }
       })
       if (error) setMessage(toastError(error))
-      else setMessage("Compte créé. Si une confirmation par e-mail est demandée, validez-la puis reconnectez-vous. Votre accès restera en attente jusqu’à l’approbation de l’administrateur.")
+      else setMessage("Bienvenue sur ProPilot 2026 ! Votre demande d’accès a bien été enregistrée. Votre compte est en attente de validation par l’administrateur. Vous pourrez accéder à votre espace enseignant dès que votre demande aura été approuvée. Merci de votre patience.")
     }
     setBusy(false)
   }
