@@ -353,6 +353,8 @@
 @media(max-width:900px){.auth-layout{grid-template-columns:1fr}.auth-brand{padding:42px 24px 52px}.auth-curricula li{font-size:14px}.auth-card{margin:32px 0}}
 @media(max-width:520px){.auth-brand{padding:26px 20px 48px}.auth-brand h1{font-size:31px}.auth-curricula ul{grid-template-columns:1fr;gap:9px}.auth-curricula li:nth-child(n){grid-column:auto;grid-row:auto}.auth-brand .auth-tagline{font-size:17px}.auth-brand .auth-description{font-size:15px}}
 
-/* Use the approved raster artwork itself, without redraw or recoloring */
-.auth-brand>.brand-badge{width:76px;height:76px;padding:0;background:transparent;overflow:hidden;border-radius:19px;box-shadow:none}
-.auth-brand>.brand-badge img{width:100%;height:100%;object-fit:cover}
+/* Approved ProPilot logo — larger, responsive sign-in branding */
+.auth-brand>.brand-badge{width:156px;height:156px;padding:0;background:transparent;overflow:hidden;border-radius:32px;box-shadow:none;flex:none}
+.auth-brand>.brand-badge img{display:block;width:100%;height:100%;object-fit:cover}
+@media(max-width:900px){.auth-brand>.brand-badge{width:130px;height:130px;border-radius:28px}}
+@media(max-width:520px){.auth-brand>.brand-badge{width:112px;height:112px;border-radius:24px}}
