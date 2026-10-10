@@ -333,12 +333,24 @@ function AuthScreen() {
   return (
     <div className="auth-layout">
       <div className="auth-brand" style={{position:"relative"}}>
-        <div className="brand-badge"><GraduationCap size={36}/></div>
-        <h1>ProPilot <span>Eco-Gestion</span></h1>
-        <p>Suivi pédagogique, compétences, PFMP, CCF et espace élève pour les métiers du commerce et de la vente.</p>
+        <div className="brand-badge"><img src={`${import.meta.env.BASE_URL}propilot-logo.svg`} alt="Logo ProPilot : boussole et diplôme" width="58" height="58" /></div>
+        <h1>ProPilot <span>Éco-Gestion</span></h1>
+        <p className="auth-tagline">Votre espace de suivi pédagogique en économie-gestion.</p>
+        <p className="auth-description">Une plateforme dédiée au pilotage des compétences, des évaluations et des parcours des élèves, du CAP au Bac professionnel.</p>
+        <section className="auth-curricula" aria-labelledby="auth-curricula-title">
+          <h2 id="auth-curricula-title"><GraduationCap size={22}/> Formations intégrées</h2>
+          <ul>
+            <li>Bac Pro Métiers du Commerce et de la Vente – Options A et B</li>
+            <li>Bac Pro Métiers de l’Accueil</li>
+            <li>2MRC</li>
+            <li>CAP Équipier Polyvalent du Commerce</li>
+            <li>AGOrA</li>
+            <li>Logistique et Transport</li>
+          </ul>
+        </section>
         <div className="auth-features">
-          <span><CheckCircle2/> Référentiels MCV A/B intégrés</span>
-          <span><CheckCircle2/> Évaluation tablette</span>
+          <span><CheckCircle2/> Compétences intégrées</span>
+          <span><CheckCircle2/> Évaluations, PFMP et CCF</span>
           <span><CheckCircle2/> Synthèse et positionnement</span>
         </div>
         <div style={{position:"absolute",bottom:20,left:24,color:"#dbe7ff",fontSize:13}}>Créé par Mohamed Zizah</div>
