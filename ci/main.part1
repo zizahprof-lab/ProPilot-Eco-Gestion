@@ -318,7 +318,7 @@ function AuthScreen() {
         options: { emailRedirectTo: new URL(import.meta.env.BASE_URL, window.location.origin).href, data: { account_type: accountType, display_name: displayName.trim() } }
       })
       if (error) setMessage(toastError(error))
-      else setMessage("Bienvenue sur ProPilot 2026 ! Votre demande d’accès a bien été enregistrée. Votre compte est en attente de validation par l’administrateur. Vous pourrez accéder à votre espace enseignant dès que votre demande aura été approuvée. Merci de votre patience.")
+      else setMessage("Votre demande d'accès a bien été enregistrée\nBienvenue sur ProPilot 2026 !\nVotre compte est en attente de validation par l'administrateur.\nVous pourrez accéder à votre espace enseignant dès que votre demande aura été approuvée.\nMerci de votre patience.")
     }
     setBusy(false)
   }
@@ -368,7 +368,7 @@ function AuthScreen() {
         <label>Adresse e-mail<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required /></label>
         <label>{mode==='login'?'Mot de passe ou code élève':'Mot de passe'}<div style={{position:"relative"}}><input type={showPassword?"text":"password"} value={password} onChange={e=>setPassword(e.target.value)} minLength={8} required style={{paddingRight:48,width:"100%"}}/><button type="button" onClick={()=>setShowPassword(v=>!v)} aria-label={showPassword?"Masquer le mot de passe":"Afficher le mot de passe"} title={showPassword?"Masquer":"Afficher"} style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",border:0,background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",color:"#52627b"}}>{showPassword?<EyeOff size={21}/>:<Eye size={21}/>}</button></div></label>{mode==='signup'&&accountType==='teacher'&&<small className="muted auth-domain-hint">Phase pilote : adresse @ac-aix-marseille.fr obligatoire, sauf comptes de test expressément autorisés.</small>}
         {mode==='login'&&loginRole==='teacher'&&<button type="button" className="link-btn forgot-link" onClick={forgotPassword}>Mot de passe oublié ?</button>}
-        {message && <div className="form-message">{message}</div>}
+        {message && <div className="form-message" role="status" style={{whiteSpace:'pre-line'}}>{message}</div>}
         <button className="btn primary wide" disabled={busy}>{busy ? 'Patiente…' : mode === 'login' ? 'Se connecter' : 'Créer le compte'}</button>
         {(mode==='signup'||loginRole==='teacher')&&<button type="button" className="link-btn" onClick={()=>setMode(mode==='login'?'signup':'login')}>
           {mode === 'login' ? "Enseignant : créer un compte" : "J'ai déjà un compte"}
